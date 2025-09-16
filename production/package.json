@@ -1,0 +1,17 @@
+{
+  "name": "quantum-defi-protocol-production",
+  "version": "1.0.0",
+  "description": "Quantum-Resistant Cross-Chain DeFi Protocol - Production Version",
+  "main": "index.js",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "serve": "python3 serve.py"
+  },
+  "dependencies": {
+    "next": "14.0.4",
+    "react": "18.2.0",
+    "react-dom": "18.2.0"
+  }
+}

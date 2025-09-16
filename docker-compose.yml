@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  quantum-defi:
+    build: .
+    ports:
+      - "3000:3000"  # Frontend
+      - "8545:8545"  # Hardhat node
+    volumes:
+      - .:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+    stdin_open: true
+    tty: true
+    command: >
+      sh -c "
+        echo '🚀 Quantum DeFi Protocol - Docker Setup';
+        echo '📦 Installing dependencies...';
+        npm install;
+        echo '🔨 Compiling contracts...';
+        npx hardhat compile;
+        echo '🚀 Starting Hardhat node...';
+        npx hardhat node --hostname 0.0.0.0 &
+        echo '⏳ Waiting for blockchain to start...';
+        sleep 15;
+        echo '📄 Deploying contracts...';
+        npx hardhat run scripts/deploy.js --network localhost;
+        echo '🌐 Starting frontend...';
+        npm run dev;
+      "
