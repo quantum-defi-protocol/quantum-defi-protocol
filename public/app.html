@@ -85,13 +85,15 @@
     <div id="notificationContainer" class="fixed top-4 right-4 z-50 space-y-2"></div>
 
     <!-- AI Optimization Modal -->
-    <div id="aiOptimizationModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div id="aiOptimizationModal"
+        class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
         <div class="bg-gray-800 rounded-2xl p-8 max-w-lg w-full border border-purple-500/30">
             <div class="flex justify-between items-center mb-6">
                 <h3 class="text-2xl font-bold text-white">🤖 AI Yield Optimization</h3>
-                <button onclick="closeAIOptimizationModal()" class="text-gray-400 hover:text-white text-2xl">&times;</button>
+                <button onclick="closeAIOptimizationModal()"
+                    class="text-gray-400 hover:text-white text-2xl">&times;</button>
             </div>
-            
+
             <div class="space-y-6">
                 <div class="p-4 bg-blue-500/20 border border-blue-500/30 rounded-lg">
                     <div class="flex items-center space-x-2 text-blue-400 mb-2">
@@ -99,40 +101,42 @@
                         <span class="font-medium">Optimize Your Yield Parameters</span>
                     </div>
                     <p class="text-gray-300 text-sm">
-                        Adjust these parameters to maximize your yield based on your risk tolerance and investment goals.
+                        Adjust these parameters to maximize your yield based on your risk tolerance and investment
+                        goals.
                     </p>
                 </div>
-                
+
                 <div class="space-y-4">
                     <div>
                         <label class="text-gray-300 text-sm mb-2 block">
                             Risk Tolerance: <span id="modalRiskValue" class="text-white font-medium">50%</span>
                         </label>
-                        <input type="range" id="modalRiskTolerance" min="0" max="100" value="50" 
+                        <input type="range" id="modalRiskTolerance" min="0" max="100" value="50"
                             class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer slider">
                         <div class="flex justify-between text-xs text-gray-400 mt-1">
                             <span>Conservative</span>
                             <span>Aggressive</span>
                         </div>
                     </div>
-                    
+
                     <div>
                         <label class="text-gray-300 text-sm mb-2 block">
                             Time Horizon: <span id="modalTimeValue" class="text-white font-medium">30 days</span>
                         </label>
-                        <input type="range" id="modalTimeHorizon" min="1" max="365" value="30" 
+                        <input type="range" id="modalTimeHorizon" min="1" max="365" value="30"
                             class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer slider">
                         <div class="flex justify-between text-xs text-gray-400 mt-1">
                             <span>1 day</span>
                             <span>1 year</span>
                         </div>
                     </div>
-                    
+
                     <div>
                         <label class="text-gray-300 text-sm mb-2 block">
-                            Liquidity Preference: <span id="modalLiquidityValue" class="text-white font-medium">70%</span>
+                            Liquidity Preference: <span id="modalLiquidityValue"
+                                class="text-white font-medium">70%</span>
                         </label>
-                        <input type="range" id="modalLiquidityPreference" min="0" max="100" value="70" 
+                        <input type="range" id="modalLiquidityPreference" min="0" max="100" value="70"
                             class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer slider">
                         <div class="flex justify-between text-xs text-gray-400 mt-1">
                             <span>Low</span>
@@ -140,13 +144,13 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="flex space-x-3">
-                    <button onclick="closeAIOptimizationModal()" 
+                    <button onclick="closeAIOptimizationModal()"
                         class="flex-1 px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded-lg text-white transition-colors">
                         Cancel
                     </button>
-                    <button onclick="executeAIOptimization()" 
+                    <button onclick="executeAIOptimization()"
                         class="flex-1 px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 rounded-lg text-white transition-colors">
                         🎯 Optimize Yield
                     </button>
@@ -1453,19 +1457,19 @@
         function openAIOptimizationModal() {
             const modal = document.getElementById('aiOptimizationModal');
             modal.classList.remove('hidden');
-            
+
             // Initialize slider values from main interface or defaults
             const riskValue = document.getElementById('riskTolerance')?.value || 50;
             const timeValue = document.getElementById('timeHorizon')?.value || 30;
             const liquidityValue = document.getElementById('liquidityPreference')?.value || 70;
-            
+
             document.getElementById('modalRiskTolerance').value = riskValue;
             document.getElementById('modalTimeHorizon').value = timeValue;
             document.getElementById('modalLiquidityPreference').value = liquidityValue;
-            
+
             // Update display values
             updateModalSliderValues();
-            
+
             // Add event listeners for real-time updates
             document.getElementById('modalRiskTolerance').addEventListener('input', updateModalSliderValues);
             document.getElementById('modalTimeHorizon').addEventListener('input', updateModalSliderValues);
@@ -1480,7 +1484,7 @@
             const risk = document.getElementById('modalRiskTolerance').value;
             const time = document.getElementById('modalTimeHorizon').value;
             const liquidity = document.getElementById('modalLiquidityPreference').value;
-            
+
             document.getElementById('modalRiskValue').textContent = risk + '%';
             document.getElementById('modalTimeValue').textContent = time + ' days';
             document.getElementById('modalLiquidityValue').textContent = liquidity + '%';
@@ -1504,34 +1508,34 @@
             try {
                 closeAIOptimizationModal();
                 showNotification(`🔒 Optimizing ${selectedStakeAsset} yield with new parameters...`, 'info');
-                
+
                 // Set encrypted AI parameters
                 const encryptedRisk = window.quantumApp.fheClient.encrypt(parseInt(risk));
                 const encryptedTime = window.quantumApp.fheClient.encrypt(parseInt(time));
                 const encryptedLiquidity = window.quantumApp.fheClient.encrypt(parseInt(liquidity));
-                
+
                 const tx1 = await window.quantumApp.contracts.ConfidentialYieldProtocol.setEncryptedAIParams(
                     encryptedRisk, encryptedTime, encryptedLiquidity
                 );
                 showNotification(`📡 AI Parameters Updated! Transaction: ${tx1.hash.substring(0, 10)}...`, 'info');
                 await tx1.wait();
-                
+
                 // Calculate new yield rate
                 const tx = await window.quantumApp.contracts.ConfidentialYieldProtocol.calculateEncryptedYieldRate(window.quantumApp.account);
                 showNotification(`📡 Calculating New Yield Rate... Hash: ${tx.hash.substring(0, 10)}...`, 'info');
                 const receipt = await tx.wait();
-                
+
                 // Calculate optimized APY based on parameters
                 const baseApy = 8.5; // Base APY
                 const riskMultiplier = 1 + (parseInt(risk) - 50) / 200; // -25% to +25%
                 const timeMultiplier = 1 + (parseInt(time) - 30) / 100; // -29% to +335%
                 const liquidityMultiplier = 1 + (parseInt(liquidity) - 70) / 150; // -47% to +20%
-                
+
                 const optimizedApy = baseApy * riskMultiplier * timeMultiplier * liquidityMultiplier;
-                
+
                 // Update the monitor display
                 await refreshYieldData();
-                
+
                 // Update main interface sliders to match
                 if (document.getElementById('riskTolerance')) {
                     document.getElementById('riskTolerance').value = risk;
@@ -1542,9 +1546,9 @@
                 if (document.getElementById('liquidityPreference')) {
                     document.getElementById('liquidityPreference').value = liquidity;
                 }
-                
+
                 showNotification(`🎉 ${selectedStakeAsset} Yield Re-optimized! New APY: ${optimizedApy.toFixed(2)}%`, 'success');
-                
+
             } catch (error) {
                 console.error('Yield optimization error:', error);
                 showNotification(`❌ Re-optimization Failed: ${error.message}`, 'error');
@@ -1935,6 +1939,7 @@
                     ConfidentialYieldProtocol: [
                         "function confidentialStake(bytes32 encryptedAmount) external",
                         "function confidentialWithdraw(bytes32 encryptedAmount) external",
+                        "function setEncryptedAIParams(bytes32 riskTolerance, bytes32 timeHorizon, bytes32 liquidityPreference) external",
                         "function getEncryptedBalance(address user) external view returns (bytes32)",
                         "function getEncryptedMarketData() external view returns (bytes32 volatility, bytes32 trend, bytes32 optimalRate)",
                         "function calculateEncryptedYield(address user) external returns (bytes32)",
