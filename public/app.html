@@ -2023,6 +2023,18 @@
                 if (typeof ethers === 'undefined') {
                     throw new Error('Ethers library not loaded. Please refresh the page.');
                 }
+                
+                // Wait for ethers to be fully loaded
+                let attempts = 0;
+                while (typeof ethers.Contract === 'undefined' && attempts < 10) {
+                    console.log(`🔍 Waiting for ethers.Contract to load... attempt ${attempts + 1}`);
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                    attempts++;
+                }
+                
+                if (typeof ethers.Contract === 'undefined') {
+                    throw new Error('Ethers.Contract not available. Please refresh the page.');
+                }
 
                 const networkAddresses = this.contractAddresses[this.currentNetwork];
 
@@ -2058,6 +2070,14 @@
                                 console.log(`🔍 Debug: setEncryptedAIParams exists:`, typeof this.contracts[contractName].setEncryptedAIParams);
                                 console.log(`🔍 Debug: calculateEncryptedYieldRate exists:`, typeof this.contracts[contractName].calculateEncryptedYieldRate);
                                 console.log(`🔍 Debug: confidentialStake exists:`, typeof this.contracts[contractName].confidentialStake);
+                                
+                                // Test calling a view function to ensure contract is accessible
+                                try {
+                                    const owner = await this.contracts[contractName].owner();
+                                    console.log(`🔍 Debug: Contract owner: ${owner}`);
+                                } catch (error) {
+                                    console.error(`🔍 Debug: Error calling owner():`, error);
+                                }
                             }
                         } catch (error) {
                             console.error(`❌ Failed to initialize ${contractName}:`, error);
