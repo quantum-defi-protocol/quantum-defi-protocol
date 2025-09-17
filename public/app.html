@@ -84,16 +84,89 @@
     <!-- Notification System -->
     <div id="notificationContainer" class="fixed top-4 right-4 z-50 space-y-2"></div>
 
+    <!-- AI Optimization Modal -->
+    <div id="aiOptimizationModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-gray-800 rounded-2xl p-8 max-w-lg w-full border border-purple-500/30">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-2xl font-bold text-white">🤖 AI Yield Optimization</h3>
+                <button onclick="closeAIOptimizationModal()" class="text-gray-400 hover:text-white text-2xl">&times;</button>
+            </div>
+            
+            <div class="space-y-6">
+                <div class="p-4 bg-blue-500/20 border border-blue-500/30 rounded-lg">
+                    <div class="flex items-center space-x-2 text-blue-400 mb-2">
+                        <span class="text-xl">⚡</span>
+                        <span class="font-medium">Optimize Your Yield Parameters</span>
+                    </div>
+                    <p class="text-gray-300 text-sm">
+                        Adjust these parameters to maximize your yield based on your risk tolerance and investment goals.
+                    </p>
+                </div>
+                
+                <div class="space-y-4">
+                    <div>
+                        <label class="text-gray-300 text-sm mb-2 block">
+                            Risk Tolerance: <span id="modalRiskValue" class="text-white font-medium">50%</span>
+                        </label>
+                        <input type="range" id="modalRiskTolerance" min="0" max="100" value="50" 
+                            class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer slider">
+                        <div class="flex justify-between text-xs text-gray-400 mt-1">
+                            <span>Conservative</span>
+                            <span>Aggressive</span>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="text-gray-300 text-sm mb-2 block">
+                            Time Horizon: <span id="modalTimeValue" class="text-white font-medium">30 days</span>
+                        </label>
+                        <input type="range" id="modalTimeHorizon" min="1" max="365" value="30" 
+                            class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer slider">
+                        <div class="flex justify-between text-xs text-gray-400 mt-1">
+                            <span>1 day</span>
+                            <span>1 year</span>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="text-gray-300 text-sm mb-2 block">
+                            Liquidity Preference: <span id="modalLiquidityValue" class="text-white font-medium">70%</span>
+                        </label>
+                        <input type="range" id="modalLiquidityPreference" min="0" max="100" value="70" 
+                            class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer slider">
+                        <div class="flex justify-between text-xs text-gray-400 mt-1">
+                            <span>Low</span>
+                            <span>High</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="flex space-x-3">
+                    <button onclick="closeAIOptimizationModal()" 
+                        class="flex-1 px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded-lg text-white transition-colors">
+                        Cancel
+                    </button>
+                    <button onclick="executeAIOptimization()" 
+                        class="flex-1 px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 rounded-lg text-white transition-colors">
+                        🎯 Optimize Yield
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Asset Selection Modal -->
-    <div id="assetModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div id="assetModal"
+        class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
         <div class="bg-gray-800 rounded-2xl p-8 max-w-md w-full border border-purple-500/30">
             <div class="flex justify-between items-center mb-6">
                 <h3 class="text-2xl font-bold text-white">🔐 Select Asset to Stake</h3>
                 <button onclick="closeAssetModal()" class="text-gray-400 hover:text-white text-2xl">&times;</button>
             </div>
-            
+
             <div class="space-y-3">
-                <label class="flex items-center space-x-3 p-4 bg-gray-700/30 rounded-lg hover:bg-gray-600/30 cursor-pointer transition-colors border border-transparent hover:border-purple-500/50">
+                <label
+                    class="flex items-center space-x-3 p-4 bg-gray-700/30 rounded-lg hover:bg-gray-600/30 cursor-pointer transition-colors border border-transparent hover:border-purple-500/50">
                     <input type="radio" name="stakeAsset" value="ETH" class="text-purple-600" checked>
                     <div class="flex-1">
                         <div class="flex items-center space-x-2">
@@ -103,8 +176,9 @@
                         <div class="text-gray-400 text-sm">Native cryptocurrency</div>
                     </div>
                 </label>
-                
-                <label class="flex items-center space-x-3 p-4 bg-gray-700/30 rounded-lg hover:bg-gray-600/30 cursor-pointer transition-colors border border-transparent hover:border-purple-500/50">
+
+                <label
+                    class="flex items-center space-x-3 p-4 bg-gray-700/30 rounded-lg hover:bg-gray-600/30 cursor-pointer transition-colors border border-transparent hover:border-purple-500/50">
                     <input type="radio" name="stakeAsset" value="USDC" class="text-purple-600">
                     <div class="flex-1">
                         <div class="flex items-center space-x-2">
@@ -114,8 +188,9 @@
                         <div class="text-gray-400 text-sm">Stablecoin</div>
                     </div>
                 </label>
-                
-                <label class="flex items-center space-x-3 p-4 bg-gray-700/30 rounded-lg hover:bg-gray-600/30 cursor-pointer transition-colors border border-transparent hover:border-purple-500/50">
+
+                <label
+                    class="flex items-center space-x-3 p-4 bg-gray-700/30 rounded-lg hover:bg-gray-600/30 cursor-pointer transition-colors border border-transparent hover:border-purple-500/50">
                     <input type="radio" name="stakeAsset" value="WBTC" class="text-purple-600">
                     <div class="flex-1">
                         <div class="flex items-center space-x-2">
@@ -125,8 +200,9 @@
                         <div class="text-gray-400 text-sm">Bitcoin on Ethereum</div>
                     </div>
                 </label>
-                
-                <label class="flex items-center space-x-3 p-4 bg-gray-700/30 rounded-lg hover:bg-gray-600/30 cursor-pointer transition-colors border border-transparent hover:border-purple-500/50">
+
+                <label
+                    class="flex items-center space-x-3 p-4 bg-gray-700/30 rounded-lg hover:bg-gray-600/30 cursor-pointer transition-colors border border-transparent hover:border-purple-500/50">
                     <input type="radio" name="stakeAsset" value="LINK" class="text-purple-600">
                     <div class="flex-1">
                         <div class="flex items-center space-x-2">
@@ -137,13 +213,13 @@
                     </div>
                 </label>
             </div>
-            
+
             <div class="mt-6 flex space-x-3">
-                <button onclick="closeAssetModal()" 
+                <button onclick="closeAssetModal()"
                     class="flex-1 px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded-lg text-white transition-colors">
                     Cancel
                 </button>
-                <button onclick="selectAsset()" 
+                <button onclick="selectAsset()"
                     class="flex-1 px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 rounded-lg text-white transition-colors">
                     Select Asset
                 </button>
@@ -275,32 +351,39 @@
                         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                             <div class="space-y-4">
                                 <h4 class="text-lg font-semibold text-white">Encrypt Your Stake Amount</h4>
-                                
+
                                 <!-- Asset Selection Button -->
                                 <button onclick="openAssetModal()" id="selectedAssetBtn"
                                     class="w-full px-4 py-3 bg-gray-800/50 border border-gray-600 rounded-lg text-white hover:border-purple-500 focus:border-purple-500 focus:outline-none transition-colors text-left flex items-center justify-between">
                                     <span id="selectedAssetText">🔷 Select Asset to Stake</span>
                                     <span class="text-gray-400">▼</span>
                                 </button>
-                                
+
                                 <input type="number" id="stakeAmount" placeholder="Enter amount to stake"
                                     class="w-full px-4 py-3 bg-gray-800/50 border border-gray-600 rounded-lg text-white focus:border-purple-500 focus:outline-none">
-                                
+
                                 <!-- AI Optimization Section -->
-                                <div id="aiOptimizationSection" class="hidden space-y-4 p-4 bg-gray-800/30 rounded-lg border border-purple-500/30">
+                                <div id="aiOptimizationSection"
+                                    class="hidden space-y-4 p-4 bg-gray-800/30 rounded-lg border border-purple-500/30">
                                     <h5 class="text-md font-semibold text-white">🤖 AI Yield Optimization</h5>
                                     <div class="space-y-3">
                                         <div>
-                                            <label class="text-gray-300 text-sm">Risk Tolerance: <span id="riskValue" class="text-white">50%</span></label>
-                                            <input type="range" id="riskTolerance" min="0" max="100" value="50" class="w-full">
+                                            <label class="text-gray-300 text-sm">Risk Tolerance: <span id="riskValue"
+                                                    class="text-white">50%</span></label>
+                                            <input type="range" id="riskTolerance" min="0" max="100" value="50"
+                                                class="w-full">
                                         </div>
                                         <div>
-                                            <label class="text-gray-300 text-sm">Time Horizon: <span id="timeValue" class="text-white">30 days</span></label>
-                                            <input type="range" id="timeHorizon" min="1" max="365" value="30" class="w-full">
+                                            <label class="text-gray-300 text-sm">Time Horizon: <span id="timeValue"
+                                                    class="text-white">30 days</span></label>
+                                            <input type="range" id="timeHorizon" min="1" max="365" value="30"
+                                                class="w-full">
                                         </div>
                                         <div>
-                                            <label class="text-gray-300 text-sm">Liquidity Preference: <span id="liquidityValue" class="text-white">70%</span></label>
-                                            <input type="range" id="liquidityPreference" min="0" max="100" value="70" class="w-full">
+                                            <label class="text-gray-300 text-sm">Liquidity Preference: <span
+                                                    id="liquidityValue" class="text-white">70%</span></label>
+                                            <input type="range" id="liquidityPreference" min="0" max="100" value="70"
+                                                class="w-full">
                                         </div>
                                         <button onclick="optimizeYieldForStaking()"
                                             class="w-full px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 rounded-lg font-semibold text-white transition-all duration-300">
@@ -308,7 +391,7 @@
                                         </button>
                                     </div>
                                 </div>
-                                
+
                                 <button onclick="confidentialStake()" id="stakeButton"
                                     class="w-full px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 rounded-lg font-semibold text-white transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                                     disabled>
@@ -1027,12 +1110,12 @@
 
                 // Call the ConfidentialYieldProtocol contract
                 const tx = await window.quantumApp.contracts.ConfidentialYieldProtocol.confidentialStake(encryptedAmount);
-                
+
                 showNotification(`📡 Staking Transaction Submitted! Hash: ${tx.hash.substring(0, 10)}...`, 'info');
-                
+
                 // Wait for transaction confirmation
                 const receipt = await tx.wait();
-                
+
                 // Show success with transaction details
                 showNotification(`🎉 ${selectedStakeAsset} Confidential Staking Complete! Amount: ${amount} (encrypted). Your confidential farming is now active!`, 'success');
 
@@ -1071,12 +1154,12 @@
 
                 // Call the ConfidentialYieldProtocol contract
                 const tx = await window.quantumApp.contracts.ConfidentialYieldProtocol.confidentialWithdraw(encryptedAmount);
-                
+
                 showNotification(`📡 Withdrawal Request Submitted! Hash: ${tx.hash.substring(0, 10)}... Processing: 3 days`, 'info');
-                
+
                 // Wait for transaction confirmation
                 const receipt = await tx.wait();
-                
+
                 // Show success with 3-day processing info
                 showNotification(`🎉 Withdrawal Request Complete! Amount: ${amount} (encrypted). Processing time: 3 days for security.`, 'success');
 
@@ -1129,21 +1212,21 @@
                         </div>
                     </div>
                 `;
-                
+
                 document.body.appendChild(modal);
-                
+
                 // Global functions for modal
                 window.closeWithdrawalModal = () => {
                     document.body.removeChild(modal);
                     resolve(null);
                 };
-                
+
                 window.confirmWithdrawal = () => {
                     const amount = document.getElementById('withdrawalAmount').value;
                     document.body.removeChild(modal);
                     resolve(amount);
                 };
-                
+
                 // Focus on input
                 setTimeout(() => {
                     document.getElementById('withdrawalAmount').focus();
@@ -1327,11 +1410,8 @@
                 return;
             }
 
-            // Use the reusable AI optimization component
-            await optimizeYieldForStaking();
-            
-            // Update the monitor display with new data
-            await refreshYieldData();
+            // Open the AI optimization modal
+            openAIOptimizationModal();
         }
 
         // Asset Modal Functions
@@ -1348,25 +1428,127 @@
         function selectAsset() {
             const selectedAsset = document.querySelector('input[name="stakeAsset"]:checked').value;
             selectedStakeAsset = selectedAsset;
-            
+
             // Update the asset button text
             const assetText = document.getElementById('selectedAssetText');
             const assetEmojis = {
                 'ETH': '🔷 ETH (Ethereum)',
-                'USDC': '💵 USDC (USD Coin)', 
+                'USDC': '💵 USDC (USD Coin)',
                 'WBTC': '🟠 WBTC (Wrapped Bitcoin)',
                 'LINK': '🔗 LINK (Chainlink)'
             };
             assetText.textContent = assetEmojis[selectedAsset];
-            
+
             // Show AI optimization section
             document.getElementById('aiOptimizationSection').classList.remove('hidden');
-            
+
             // Enable stake button
             document.getElementById('stakeButton').disabled = false;
-            
+
             closeAssetModal();
             showNotification(`✅ Selected ${selectedAsset} for staking. Configure AI optimization below.`, 'success');
+        }
+
+        // AI Optimization Modal Functions
+        function openAIOptimizationModal() {
+            const modal = document.getElementById('aiOptimizationModal');
+            modal.classList.remove('hidden');
+            
+            // Initialize slider values from main interface or defaults
+            const riskValue = document.getElementById('riskTolerance')?.value || 50;
+            const timeValue = document.getElementById('timeHorizon')?.value || 30;
+            const liquidityValue = document.getElementById('liquidityPreference')?.value || 70;
+            
+            document.getElementById('modalRiskTolerance').value = riskValue;
+            document.getElementById('modalTimeHorizon').value = timeValue;
+            document.getElementById('modalLiquidityPreference').value = liquidityValue;
+            
+            // Update display values
+            updateModalSliderValues();
+            
+            // Add event listeners for real-time updates
+            document.getElementById('modalRiskTolerance').addEventListener('input', updateModalSliderValues);
+            document.getElementById('modalTimeHorizon').addEventListener('input', updateModalSliderValues);
+            document.getElementById('modalLiquidityPreference').addEventListener('input', updateModalSliderValues);
+        }
+
+        function closeAIOptimizationModal() {
+            document.getElementById('aiOptimizationModal').classList.add('hidden');
+        }
+
+        function updateModalSliderValues() {
+            const risk = document.getElementById('modalRiskTolerance').value;
+            const time = document.getElementById('modalTimeHorizon').value;
+            const liquidity = document.getElementById('modalLiquidityPreference').value;
+            
+            document.getElementById('modalRiskValue').textContent = risk + '%';
+            document.getElementById('modalTimeValue').textContent = time + ' days';
+            document.getElementById('modalLiquidityValue').textContent = liquidity + '%';
+        }
+
+        async function executeAIOptimization() {
+            if (!window.quantumApp || !window.quantumApp.isWalletConnected) {
+                showNotification('⚠️ Please connect your wallet first', 'warning');
+                return;
+            }
+
+            if (!selectedStakeAsset) {
+                showNotification('⚠️ Please select an asset first', 'warning');
+                return;
+            }
+
+            const risk = document.getElementById('modalRiskTolerance').value;
+            const time = document.getElementById('modalTimeHorizon').value;
+            const liquidity = document.getElementById('modalLiquidityPreference').value;
+
+            try {
+                closeAIOptimizationModal();
+                showNotification(`🔒 Optimizing ${selectedStakeAsset} yield with new parameters...`, 'info');
+                
+                // Set encrypted AI parameters
+                const encryptedRisk = window.quantumApp.fheClient.encrypt(parseInt(risk));
+                const encryptedTime = window.quantumApp.fheClient.encrypt(parseInt(time));
+                const encryptedLiquidity = window.quantumApp.fheClient.encrypt(parseInt(liquidity));
+                
+                const tx1 = await window.quantumApp.contracts.ConfidentialYieldProtocol.setEncryptedAIParams(
+                    encryptedRisk, encryptedTime, encryptedLiquidity
+                );
+                showNotification(`📡 AI Parameters Updated! Transaction: ${tx1.hash.substring(0, 10)}...`, 'info');
+                await tx1.wait();
+                
+                // Calculate new yield rate
+                const tx = await window.quantumApp.contracts.ConfidentialYieldProtocol.calculateEncryptedYieldRate(window.quantumApp.account);
+                showNotification(`📡 Calculating New Yield Rate... Hash: ${tx.hash.substring(0, 10)}...`, 'info');
+                const receipt = await tx.wait();
+                
+                // Calculate optimized APY based on parameters
+                const baseApy = 8.5; // Base APY
+                const riskMultiplier = 1 + (parseInt(risk) - 50) / 200; // -25% to +25%
+                const timeMultiplier = 1 + (parseInt(time) - 30) / 100; // -29% to +335%
+                const liquidityMultiplier = 1 + (parseInt(liquidity) - 70) / 150; // -47% to +20%
+                
+                const optimizedApy = baseApy * riskMultiplier * timeMultiplier * liquidityMultiplier;
+                
+                // Update the monitor display
+                await refreshYieldData();
+                
+                // Update main interface sliders to match
+                if (document.getElementById('riskTolerance')) {
+                    document.getElementById('riskTolerance').value = risk;
+                }
+                if (document.getElementById('timeHorizon')) {
+                    document.getElementById('timeHorizon').value = time;
+                }
+                if (document.getElementById('liquidityPreference')) {
+                    document.getElementById('liquidityPreference').value = liquidity;
+                }
+                
+                showNotification(`🎉 ${selectedStakeAsset} Yield Re-optimized! New APY: ${optimizedApy.toFixed(2)}%`, 'success');
+                
+            } catch (error) {
+                console.error('Yield optimization error:', error);
+                showNotification(`❌ Re-optimization Failed: ${error.message}`, 'error');
+            }
         }
 
         // Reusable AI Optimization Component
@@ -1406,7 +1588,7 @@
                     encryptedTime,
                     encryptedLiquidity
                 );
-                
+
                 showNotification(`📡 AI Parameters Submitted! Transaction: ${tx1.hash.substring(0, 10)}...`, 'info');
                 await tx1.wait();
 
@@ -1414,10 +1596,10 @@
                 const tx = await window.quantumApp.contracts.ConfidentialYieldProtocol.calculateEncryptedYieldRate(window.quantumApp.account);
 
                 showNotification(`📡 Transaction Submitted! Hash: ${tx.hash.substring(0, 10)}...`, 'info');
-                
+
                 // Wait for transaction confirmation
                 const receipt = await tx.wait();
-                
+
                 // Calculate optimized APY based on parameters (for display)
                 const baseApy = 5;
                 const riskMultiplier = risk / 10;
