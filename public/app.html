@@ -409,33 +409,6 @@
                                     class="text-sm text-gray-400 break-all p-3 bg-gray-800/30 rounded-lg"></div>
                             </div>
 
-                            <div class="space-y-4">
-                                <h4 class="text-lg font-semibold text-white">AI Parameters Configuration</h4>
-                                <div class="space-y-3">
-                                    <div>
-                                        <label class="text-gray-300 text-sm">Risk Tolerance: <span id="riskValue"
-                                                class="text-white">50%</span></label>
-                                        <input type="range" id="riskTolerance" min="0" max="100" value="50"
-                                            class="w-full">
-                                    </div>
-                                    <div>
-                                        <label class="text-gray-300 text-sm">Time Horizon: <span id="timeValue"
-                                                class="text-white">30 days</span></label>
-                                        <input type="range" id="timeHorizon" min="1" max="365" value="30"
-                                            class="w-full">
-                                    </div>
-                                    <div>
-                                        <label class="text-gray-300 text-sm">Liquidity Preference: <span
-                                                id="liquidityValue" class="text-white">70%</span></label>
-                                        <input type="range" id="liquidityPreference" min="0" max="100" value="70"
-                                            class="w-full">
-                                    </div>
-                                    <button onclick="optimizeYield()"
-                                        class="w-full px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 rounded-lg font-semibold text-white transition-all duration-300">
-                                        🤖 Optimize Yield
-                                    </button>
-                                </div>
-                            </div>
                         </div>
                     </div>
 
@@ -1413,7 +1386,7 @@
             console.log('🔍 Debug: window.quantumApp:', window.quantumApp);
             console.log('🔍 Debug: contracts:', window.quantumApp?.contracts);
             console.log('🔍 Debug: ConfidentialYieldProtocol:', window.quantumApp?.contracts?.ConfidentialYieldProtocol);
-            
+
             if (!window.quantumApp || !window.quantumApp.isWalletConnected) {
                 showNotification('⚠️ Please connect your wallet first', 'warning');
                 return;
@@ -1505,7 +1478,7 @@
             console.log('🔍 Debug: window.quantumApp:', window.quantumApp);
             console.log('🔍 Debug: contracts:', window.quantumApp?.contracts);
             console.log('🔍 Debug: ConfidentialYieldProtocol:', window.quantumApp?.contracts?.ConfidentialYieldProtocol);
-            
+
             if (!window.quantumApp || !window.quantumApp.isWalletConnected) {
                 showNotification('⚠️ Please connect your wallet first', 'warning');
                 return;
@@ -2078,6 +2051,14 @@
                             );
                             console.log(`✅ ${contractName} contract initialized at ${address}`);
                             console.log(`🔍 Debug: ${contractName} ABI:`, this.abis[contractName]);
+                            
+                            // Test if the contract has the expected functions
+                            if (contractName === 'ConfidentialYieldProtocol') {
+                                console.log(`🔍 Debug: Testing ConfidentialYieldProtocol functions...`);
+                                console.log(`🔍 Debug: setEncryptedAIParams exists:`, typeof this.contracts[contractName].setEncryptedAIParams);
+                                console.log(`🔍 Debug: calculateEncryptedYieldRate exists:`, typeof this.contracts[contractName].calculateEncryptedYieldRate);
+                                console.log(`🔍 Debug: confidentialStake exists:`, typeof this.contracts[contractName].confidentialStake);
+                            }
                         } catch (error) {
                             console.error(`❌ Failed to initialize ${contractName}:`, error);
                         }
