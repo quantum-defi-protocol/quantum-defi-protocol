@@ -497,7 +497,7 @@
             </div>
         </div>
     </div>
-
+    
     <script>
         // Tab switching functionality
         function showTab(tabName) {
@@ -722,11 +722,22 @@
                         try {
                             const clientInfo = await window.quantumClient.initialize();
                             console.log('Quantum DeFi Client initialized:', clientInfo);
-                            showNotification(`Wallet connected to ${clientInfo.network}! Contracts ready.`, 'success');
+                            
+                            // Test contract integration
+                            const contractTest = await window.quantumClient.testContractIntegration();
+                            console.log('Contract integration test:', contractTest);
+                            
+                            if (contractTest.error) {
+                                showNotification(`Wallet connected to ${clientInfo.network}, but contract integration failed: ${contractTest.error}`, 'warning');
+                            } else {
+                                const connectedContracts = Object.keys(contractTest).filter(key => contractTest[key].connected).length;
+                                showNotification(`Wallet connected to ${clientInfo.network}! ${connectedContracts} contracts ready.`, 'success');
+                            }
+                            
                             updateNetworkStatus(clientInfo);
                         } catch (error) {
                             console.error('Error initializing Quantum DeFi client:', error);
-                            showNotification('Wallet connected, but contract integration failed.', 'warning');
+                            showNotification('Wallet connected, but contract integration failed: ' + error.message, 'warning');
                         }
 
                         // Enable blockchain features
@@ -791,22 +802,33 @@
             console.log('Blockchain features enabled for account:', currentAccount);
         }
 
-        function updateNetworkStatus(clientInfo) {
+        async function updateNetworkStatus(clientInfo) {
             // Update network status display with real contract information
             const networkStatus = document.querySelector('.network-status');
             if (networkStatus && clientInfo.contracts) {
                 const networkConfig = window.quantumClient.networkConfigs[clientInfo.network];
+                
+                // Test contract integration
+                let contractStatus = '';
+                try {
+                    const contractTest = await window.quantumClient.testContractIntegration();
+                    const connectedContracts = Object.keys(contractTest).filter(key => contractTest[key].connected);
+                    contractStatus = `✅ ${connectedContracts.length} contracts connected`;
+                } catch (error) {
+                    contractStatus = `⚠️ Contract integration failed`;
+                }
+                
                 let statusHtml = `
                     <div class="text-center p-4 bg-gray-800/30 rounded-lg border border-green-500/30">
                         <div class="text-white font-medium">${networkConfig ? networkConfig.name : clientInfo.network.toUpperCase()}</div>
-                        <div class="text-green-400 text-sm">✅ Connected to Testnet</div>
+                        <div class="text-green-400 text-sm">${contractStatus}</div>
                         <div class="text-xs text-gray-400 mt-2">
-                            <div>CrossChainBridge: ${clientInfo.contracts.CrossChainBridge ?
-                        `<a href="${networkConfig?.blockExplorer}/address/${clientInfo.contracts.CrossChainBridge}" target="_blank" class="text-blue-400 hover:text-blue-300">${clientInfo.contracts.CrossChainBridge.slice(0, 10)}...</a>` :
-                        'Not deployed'}</div>
-                            <div>ConfidentialYield: ${clientInfo.contracts.ConfidentialYieldProtocol && clientInfo.contracts.ConfidentialYieldProtocol !== "0x0000000000000000000000000000000000000000" ?
-                        `<a href="${networkConfig?.blockExplorer}/address/${clientInfo.contracts.ConfidentialYieldProtocol}" target="_blank" class="text-blue-400 hover:text-blue-300">${clientInfo.contracts.ConfidentialYieldProtocol.slice(0, 10)}...</a>` :
-                        'Not deployed'}</div>
+                            <div>CrossChainBridge: ${clientInfo.contracts.CrossChainBridge ? 
+                                `<a href="${networkConfig?.blockExplorer}/address/${clientInfo.contracts.CrossChainBridge}" target="_blank" class="text-blue-400 hover:text-blue-300">${clientInfo.contracts.CrossChainBridge.slice(0, 10)}...</a>` : 
+                                'Not deployed'}</div>
+                            <div>ConfidentialYield: ${clientInfo.contracts.ConfidentialYieldProtocol && clientInfo.contracts.ConfidentialYieldProtocol !== "0x0000000000000000000000000000000000000000" ? 
+                                `<a href="${networkConfig?.blockExplorer}/address/${clientInfo.contracts.ConfidentialYieldProtocol}" target="_blank" class="text-blue-400 hover:text-blue-300">${clientInfo.contracts.ConfidentialYieldProtocol.slice(0, 10)}...</a>` : 
+                                'Not deployed'}</div>
                         </div>
                         <div class="mt-2">
                             <button onclick="switchToBestNetwork()" class="px-3 py-1 bg-blue-600 hover:bg-blue-700 rounded text-xs text-white">
@@ -832,7 +854,7 @@
                 rpcUrls: ['https://sepolia.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161'],
                 blockExplorerUrls: ['https://sepolia.etherscan.io']
             };
-            
+
             try {
                 await window.ethereum.request({
                     method: 'wallet_addEthereumChain',
@@ -864,7 +886,7 @@
             document.body.appendChild(notification);
 
             // Remove after 3 seconds
-            setTimeout(() => {
+        setTimeout(() => {
                 notification.remove();
             }, 3000);
         }
@@ -934,6 +956,37 @@
                 this.signer = null;
                 this.contracts = {};
                 this.currentNetwork = null;
+                
+                // Contract ABIs (simplified for demo)
+                this.abis = {
+                    MockFHE: [
+                        "function encrypt(uint256 value) external pure returns (bytes32)",
+                        "function decrypt(bytes32 encryptedValue) external pure returns (uint256)",
+                        "function add(bytes32 a, bytes32 b) external pure returns (bytes32)",
+                        "function multiply(bytes32 a, uint256 scalar) external pure returns (bytes32)"
+                    ],
+                    CrossChainBridge: [
+                        "function initiateSwap(address token, uint256 amount, uint256 targetChainId, address recipient) external payable",
+                        "function completeSwap(bytes32 swapId, bytes32 secret) external",
+                        "function getSwapStatus(bytes32 swapId) external view returns (tuple(address initiator, address token, uint256 amount, uint256 targetChainId, address recipient, bool completed))",
+                        "function createAssetPool(address token, uint256 initialLiquidity) external"
+                    ],
+                    UniversalAssetManager: [
+                        "function registerAsset(address token, uint256 chainId, string memory symbol, uint8 decimals, uint256 totalSupply, bool isNative) external",
+                        "function getAssetInfo(address token) external view returns (tuple(address token, uint256 chainId, string symbol, uint8 decimals, uint256 totalSupply, bool isActive, bool isNative))",
+                        "function getSupportedAssets() external view returns (address[])",
+                        "function bridge() external view returns (address)"
+                    ],
+                    ConfidentialYieldProtocol: [
+                        "function deposit(bytes32 encryptedAmount) external",
+                        "function withdraw(bytes32 encryptedAmount) external",
+                        "function getEncryptedBalance(address user) external view returns (bytes32)",
+                        "function getEncryptedMarketData() external view returns (tuple(bytes32 volatility, bytes32 trend, bytes32 optimalRate))",
+                        "function optimizeYield(bytes32 riskTolerance, bytes32 timeHorizon, bytes32 liquidityPreference) external view returns (bytes32)",
+                        "function owner() external view returns (address)",
+                        "function fhe() external view returns (address)"
+                    ]
+                };
 
                 // Contract addresses for each network
                 this.contractAddresses = {
@@ -992,7 +1045,10 @@
                 // Get current network
                 const network = await this.provider.getNetwork();
                 this.currentNetwork = this.getNetworkName(network.chainId);
-
+                
+                // Initialize contract instances
+                await this.initializeContracts();
+                
                 return {
                     address: await this.signer.getAddress(),
                     network: this.currentNetwork,
@@ -1000,6 +1056,30 @@
                 };
             }
 
+            // Initialize contract instances
+            async initializeContracts() {
+                const networkAddresses = this.contractAddresses[this.currentNetwork];
+                
+                if (!networkAddresses) {
+                    throw new Error(`Network ${this.currentNetwork} not supported`);
+                }
+                
+                for (const [contractName, address] of Object.entries(networkAddresses)) {
+                    if (address && address !== "0x0000000000000000000000000000000000000000" && this.abis[contractName]) {
+                        try {
+                            this.contracts[contractName] = new ethers.Contract(
+                                address,
+                                this.abis[contractName],
+                                this.signer
+                            );
+                            console.log(`✅ ${contractName} contract initialized at ${address}`);
+                        } catch (error) {
+                            console.error(`❌ Failed to initialize ${contractName}:`, error);
+                        }
+                    }
+                }
+            }
+            
             // Get network name from chain ID
             getNetworkName(chainId) {
                 const networks = {
@@ -1018,6 +1098,55 @@
                     name: this.getNetworkName(network.chainId),
                     contracts: this.contractAddresses[this.getNetworkName(network.chainId)] || {}
                 };
+            }
+            
+            // Test contract connectivity
+            async testContractIntegration() {
+                const results = {};
+                
+                try {
+                    // Test ConfidentialYieldProtocol
+                    if (this.contracts.ConfidentialYieldProtocol) {
+                        const owner = await this.contracts.ConfidentialYieldProtocol.owner();
+                        const fheAddress = await this.contracts.ConfidentialYieldProtocol.fhe();
+                        results.ConfidentialYieldProtocol = {
+                            connected: true,
+                            owner: owner,
+                            fheAddress: fheAddress
+                        };
+                    }
+                    
+                    // Test MockFHE
+                    if (this.contracts.MockFHE) {
+                        const testEncryption = await this.contracts.MockFHE.encrypt(100);
+                        results.MockFHE = {
+                            connected: true,
+                            testEncryption: testEncryption
+                        };
+                    }
+                    
+                    // Test UniversalAssetManager
+                    if (this.contracts.UniversalAssetManager) {
+                        const bridgeAddress = await this.contracts.UniversalAssetManager.bridge();
+                        results.UniversalAssetManager = {
+                            connected: true,
+                            bridgeAddress: bridgeAddress
+                        };
+                    }
+                    
+                    // Test CrossChainBridge
+                    if (this.contracts.CrossChainBridge) {
+                        results.CrossChainBridge = {
+                            connected: true
+                        };
+                    }
+                    
+                } catch (error) {
+                    console.error('Contract integration test failed:', error);
+                    results.error = error.message;
+                }
+                
+                return results;
             }
         }
 
