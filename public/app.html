@@ -8,6 +8,7 @@
     <meta name="description"
         content="Complete Quantum DeFi Protocol with confidential yield farming, cross-chain swaps, and AI optimization">
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.ethers.io/lib/ethers-5.7.2.umd.min.js"></script>
     <style>
         body {
             background: linear-gradient(135deg, #111827 0%, #7c3aed 50%, #111827 100%);
@@ -717,8 +718,16 @@
                         // Add network switching functionality
                         await switchToQuantumNetwork();
 
-                        // Show success message
-                        showNotification('Wallet connected successfully!', 'success');
+                        // Initialize Quantum DeFi client and show success message
+                        try {
+                            const clientInfo = await window.quantumClient.initialize();
+                            console.log('Quantum DeFi Client initialized:', clientInfo);
+                            showNotification(`Wallet connected to ${clientInfo.network}! Contracts ready.`, 'success');
+                            updateNetworkStatus(clientInfo);
+                        } catch (error) {
+                            console.error('Error initializing Quantum DeFi client:', error);
+                            showNotification('Wallet connected, but contract integration failed.', 'warning');
+                        }
 
                         // Enable blockchain features
                         enableBlockchainFeatures();
@@ -762,6 +771,24 @@
         function enableBlockchainFeatures() {
             // Add blockchain-specific functionality here
             console.log('Blockchain features enabled for account:', currentAccount);
+        }
+        
+        function updateNetworkStatus(clientInfo) {
+            // Update network status display with real contract information
+            const networkStatus = document.querySelector('.network-status');
+            if (networkStatus && clientInfo.contracts) {
+                let statusHtml = `
+                    <div class="text-center p-4 bg-gray-800/30 rounded-lg border border-green-500/30">
+                        <div class="text-white font-medium">${clientInfo.network.toUpperCase()}</div>
+                        <div class="text-green-400 text-sm">✅ Connected</div>
+                        <div class="text-xs text-gray-400 mt-2">
+                            <div>CrossChainBridge: ${clientInfo.contracts.CrossChainBridge ? clientInfo.contracts.CrossChainBridge.slice(0, 10) + '...' : 'Not deployed'}</div>
+                            <div>ConfidentialYield: ${clientInfo.contracts.ConfidentialYieldProtocol ? clientInfo.contracts.ConfidentialYieldProtocol.slice(0, 10) + '...' : 'Not deployed'}</div>
+                        </div>
+                    </div>
+                `;
+                networkStatus.innerHTML = statusHtml;
+            }
         }
 
         function showNotification(message, type = 'info') {
@@ -835,6 +862,83 @@
             const now = new Date().toLocaleTimeString();
             document.title = `Quantum DeFi Protocol - Full App - ${now}`;
         }, 1000);
+    </script>
+    
+    <!-- Contract Client Library -->
+    <script>
+        // Quantum DeFi Protocol - Contract Client Library
+        class QuantumDeFiClient {
+            constructor() {
+                this.provider = null;
+                this.signer = null;
+                this.contracts = {};
+                this.currentNetwork = null;
+                
+                // Contract addresses for each network
+                this.contractAddresses = {
+                    sepolia: {
+                        CrossChainBridge: "0xd63Dbb8F0f0F77BA3B602a1eb49BCBf7bfEa046D",
+                        UniversalAssetManager: "0x248b8676e75E0F7A61BfF42D30514fbAB52939eE",
+                        ConfidentialYieldProtocol: "0x0000000000000000000000000000000000000000"
+                    },
+                    arbitrumSepolia: {
+                        MockFHE: "0xdBEE9399351a42e7F3dC6d988912988ec1ACC0cA",
+                        CrossChainBridge: "0x812C613477558337698eD2fb4e7ef91945402353",
+                        UniversalAssetManager: "0x4D1E48C190E2A066A646731F37245365011c0ec2",
+                        ConfidentialYieldProtocol: "0xeEa3FdB0256C92b67955b96a08E397A53FBA8c05"
+                    },
+                    baseSepolia: {
+                        MockFHE: "0x4D1E48C190E2A066A646731F37245365011c0ec2",
+                        CrossChainBridge: "0xeEa3FdB0256C92b67955b96a08E397A53FBA8c05",
+                        UniversalAssetManager: "0xE6322835dacb2a18CC318683090Df639199fCA94",
+                        ConfidentialYieldProtocol: "0x1c63Ad304B21b0923e0CCe869a747b6dc4a90D0a"
+                    }
+                };
+            }
+            
+            // Initialize connection to MetaMask
+            async initialize() {
+                if (typeof window.ethereum === 'undefined') {
+                    throw new Error('MetaMask not detected. Please install MetaMask.');
+                }
+                
+                this.provider = new ethers.providers.Web3Provider(window.ethereum);
+                this.signer = this.provider.getSigner();
+                
+                // Get current network
+                const network = await this.provider.getNetwork();
+                this.currentNetwork = this.getNetworkName(network.chainId);
+                
+                return {
+                    address: await this.signer.getAddress(),
+                    network: this.currentNetwork,
+                    contracts: this.contractAddresses[this.currentNetwork] || {}
+                };
+            }
+            
+            // Get network name from chain ID
+            getNetworkName(chainId) {
+                const networks = {
+                    11155111: 'sepolia',
+                    421614: 'arbitrumSepolia',
+                    84532: 'baseSepolia'
+                };
+                return networks[chainId] || 'unknown';
+            }
+            
+            // Get current network info
+            async getNetworkInfo() {
+                const network = await this.provider.getNetwork();
+                return {
+                    chainId: network.chainId,
+                    name: this.getNetworkName(network.chainId),
+                    contracts: this.contractAddresses[this.getNetworkName(network.chainId)] || {}
+                };
+            }
+        }
+        
+        // Global client instance
+        window.quantumClient = new QuantumDeFiClient();
     </script>
 </body>
 
