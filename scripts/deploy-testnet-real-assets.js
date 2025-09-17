@@ -1,4 +1,5 @@
 const hre = require("hardhat");
+const { ethers } = require("hardhat");
 
 async function main() {
   console.log("🌐 Deploying Cross-Chain Protocol to Testnet with Real Assets...");
