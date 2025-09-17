@@ -1,0 +1,11 @@
+{
+  "network": "sepolia",
+  "deployer": "0x7D05Bc35cfaEfa59151f60D6884A6ec4B143d92d",
+  "contracts": {
+    "MockFHE": "0x9dc93668cB736EB0ec31cAc0e3FF9376051F9B90",
+    "CrossChainBridge": "0x4EDFCdA46D076711a7E99085ad0E59DFCB071dC1",
+    "UniversalAssetManager": "0xC4f02385058230bfF47aEa2904446b3d90Eda0F7",
+    "ConfidentialYieldProtocol": "0x292122905cdCc30cd939ec44634aeAFB2cbc2F78"
+  },
+  "timestamp": "2025-09-17T15:44:16.894Z"
+}

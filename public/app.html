@@ -749,24 +749,24 @@
             try {
                 const network = await window.ethereum.request({ method: 'eth_chainId' });
                 const chainId = parseInt(network, 16);
-                
+
                 let targetNetwork;
-                
-                // Switch to Base Sepolia (where we have the complete protocol)
-                if (chainId !== 84532) { // Base Sepolia
+
+                // Switch to Sepolia (where we have the complete protocol)
+                if (chainId !== 11155111) { // Sepolia
                     targetNetwork = {
-                        chainId: '0x14A3C', // 84532 in hex (Base Sepolia)
-                        chainName: 'Base Sepolia',
+                        chainId: '0xAA36A7', // 11155111 in hex (Sepolia)
+                        chainName: 'Sepolia',
                         nativeCurrency: {
                             name: 'Ether',
                             symbol: 'ETH',
                             decimals: 18
                         },
-                        rpcUrls: ['https://sepolia.base.org'],
-                        blockExplorerUrls: ['https://sepolia.basescan.org']
+                        rpcUrls: ['https://sepolia.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161'],
+                        blockExplorerUrls: ['https://sepolia.etherscan.io']
                     };
                 }
-                
+
                 if (targetNetwork) {
                     try {
                         await window.ethereum.request({
@@ -801,16 +801,16 @@
                         <div class="text-white font-medium">${networkConfig ? networkConfig.name : clientInfo.network.toUpperCase()}</div>
                         <div class="text-green-400 text-sm">✅ Connected to Testnet</div>
                         <div class="text-xs text-gray-400 mt-2">
-                            <div>CrossChainBridge: ${clientInfo.contracts.CrossChainBridge ? 
-                                `<a href="${networkConfig?.blockExplorer}/address/${clientInfo.contracts.CrossChainBridge}" target="_blank" class="text-blue-400 hover:text-blue-300">${clientInfo.contracts.CrossChainBridge.slice(0, 10)}...</a>` : 
-                                'Not deployed'}</div>
-                            <div>ConfidentialYield: ${clientInfo.contracts.ConfidentialYieldProtocol && clientInfo.contracts.ConfidentialYieldProtocol !== "0x0000000000000000000000000000000000000000" ? 
-                                `<a href="${networkConfig?.blockExplorer}/address/${clientInfo.contracts.ConfidentialYieldProtocol}" target="_blank" class="text-blue-400 hover:text-blue-300">${clientInfo.contracts.ConfidentialYieldProtocol.slice(0, 10)}...</a>` : 
-                                'Not deployed'}</div>
+                            <div>CrossChainBridge: ${clientInfo.contracts.CrossChainBridge ?
+                        `<a href="${networkConfig?.blockExplorer}/address/${clientInfo.contracts.CrossChainBridge}" target="_blank" class="text-blue-400 hover:text-blue-300">${clientInfo.contracts.CrossChainBridge.slice(0, 10)}...</a>` :
+                        'Not deployed'}</div>
+                            <div>ConfidentialYield: ${clientInfo.contracts.ConfidentialYieldProtocol && clientInfo.contracts.ConfidentialYieldProtocol !== "0x0000000000000000000000000000000000000000" ?
+                        `<a href="${networkConfig?.blockExplorer}/address/${clientInfo.contracts.ConfidentialYieldProtocol}" target="_blank" class="text-blue-400 hover:text-blue-300">${clientInfo.contracts.ConfidentialYieldProtocol.slice(0, 10)}...</a>` :
+                        'Not deployed'}</div>
                         </div>
                         <div class="mt-2">
                             <button onclick="switchToBestNetwork()" class="px-3 py-1 bg-blue-600 hover:bg-blue-700 rounded text-xs text-white">
-                                Switch to Base Sepolia (Complete Protocol)
+                                Switch to Sepolia (Complete Protocol)
                             </button>
                         </div>
                     </div>
@@ -818,36 +818,36 @@
                 networkStatus.innerHTML = statusHtml;
             }
         }
-        
+
         async function switchToBestNetwork() {
-            // Switch to Base Sepolia where we have the complete protocol
-            const baseSepoliaNetwork = {
-                chainId: '0x14A3C', // 84532 in hex (Base Sepolia)
-                chainName: 'Base Sepolia',
+            // Switch to Sepolia where we have the complete protocol
+            const sepoliaNetwork = {
+                chainId: '0xAA36A7', // 11155111 in hex (Sepolia)
+                chainName: 'Sepolia',
                 nativeCurrency: {
                     name: 'Ether',
                     symbol: 'ETH',
                     decimals: 18
                 },
-                rpcUrls: ['https://sepolia.base.org'],
-                blockExplorerUrls: ['https://sepolia.basescan.org']
+                rpcUrls: ['https://sepolia.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161'],
+                blockExplorerUrls: ['https://sepolia.etherscan.io']
             };
             
             try {
                 await window.ethereum.request({
                     method: 'wallet_addEthereumChain',
-                    params: [baseSepoliaNetwork]
+                    params: [sepoliaNetwork]
                 });
-                showNotification('Switched to Base Sepolia! Full protocol available.', 'success');
+                showNotification('Switched to Sepolia! Complete protocol available.', 'success');
             } catch (error) {
                 try {
                     await window.ethereum.request({
                         method: 'wallet_switchEthereumChain',
-                        params: [{ chainId: baseSepoliaNetwork.chainId }]
+                        params: [{ chainId: sepoliaNetwork.chainId }]
                     });
-                    showNotification('Switched to Base Sepolia! Full protocol available.', 'success');
+                    showNotification('Switched to Sepolia! Complete protocol available.', 'success');
                 } catch (switchError) {
-                    showNotification('Failed to switch network. Please add Base Sepolia manually.', 'error');
+                    showNotification('Failed to switch network. Please add Sepolia manually.', 'error');
                 }
             }
         }
@@ -938,9 +938,10 @@
                 // Contract addresses for each network
                 this.contractAddresses = {
                     sepolia: {
-                        CrossChainBridge: "0xd63Dbb8F0f0F77BA3B602a1eb49BCBf7bfEa046D",
-                        UniversalAssetManager: "0x248b8676e75E0F7A61BfF42D30514fbAB52939eE",
-                        ConfidentialYieldProtocol: "0x0000000000000000000000000000000000000000"
+                        MockFHE: "0x9dc93668cB736EB0ec31cAc0e3FF9376051F9B90",
+                        CrossChainBridge: "0x4EDFCdA46D076711a7E99085ad0E59DFCB071dC1",
+                        UniversalAssetManager: "0xC4f02385058230bfF47aEa2904446b3d90Eda0F7",
+                        ConfidentialYieldProtocol: "0x292122905cdCc30cd939ec44634aeAFB2cbc2F78"
                     },
                     arbitrumSepolia: {
                         MockFHE: "0xdBEE9399351a42e7F3dC6d988912988ec1ACC0cA",
@@ -955,7 +956,7 @@
                         ConfidentialYieldProtocol: "0x1c63Ad304B21b0923e0CCe869a747b6dc4a90D0a"
                     }
                 };
-                
+
                 // Network configurations with correct RPC URLs
                 this.networkConfigs = {
                     sepolia: {
