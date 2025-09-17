@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quantum DeFi Protocol - Test</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background: linear-gradient(135deg, #1f2937 0%, #7c3aed 50%, #1f2937 100%);
+            min-height: 100vh;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="min-h-screen flex items-center justify-center">
+        <div class="max-w-4xl mx-auto px-4">
+            <!-- Header -->
+            <div class="text-center mb-12">
+                <div
+                    class="w-20 h-20 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <span class="text-white font-bold text-3xl">Q</span>
+                </div>
+                <h1
+                    class="text-5xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent mb-4">
+                    Quantum DeFi Protocol
+                </h1>
+                <p class="text-xl text-gray-300 max-w-3xl mx-auto">
+                    The future of decentralized finance with quantum-resistant cryptography,
+                    fully homomorphic encryption, and AI-powered yield optimization.
+                </p>
+            </div>
+
+            <!-- Status Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+                <div
+                    class="bg-gradient-to-br from-purple-900/30 to-blue-900/30 backdrop-blur-sm rounded-2xl p-8 border border-purple-500/30">
+                    <div class="text-center">
+                        <div
+                            class="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <span class="text-green-400 text-2xl">🔒</span>
+                        </div>
+                        <h3 class="text-xl font-semibold text-white mb-2">FHE Encryption</h3>
+                        <p class="text-gray-400">Fully Homomorphic Encryption simulation active</p>
+                        <div class="mt-4 px-3 py-1 bg-green-500/20 text-green-400 rounded-full text-sm font-medium">
+                            ✅ Active
+                        </div>
+                    </div>
+                </div>
+
+                <div
+                    class="bg-gradient-to-br from-blue-900/30 to-indigo-900/30 backdrop-blur-sm rounded-2xl p-8 border border-blue-500/30">
+                    <div class="text-center">
+                        <div
+                            class="w-16 h-16 bg-blue-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <span class="text-blue-400 text-2xl">🤖</span>
+                        </div>
+                        <h3 class="text-xl font-semibold text-white mb-2">AI Optimization</h3>
+                        <p class="text-gray-400">AI-powered yield optimization ready</p>
+                        <div class="mt-4 px-3 py-1 bg-blue-500/20 text-blue-400 rounded-full text-sm font-medium">
+                            ✅ Active
+                        </div>
+                    </div>
+                </div>
+
+                <div
+                    class="bg-gradient-to-br from-indigo-900/30 to-purple-900/30 backdrop-blur-sm rounded-2xl p-8 border border-indigo-500/30">
+                    <div class="text-center">
+                        <div
+                            class="w-16 h-16 bg-indigo-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <span class="text-indigo-400 text-2xl">🌐</span>
+                        </div>
+                        <h3 class="text-xl font-semibold text-white mb-2">Cross-Chain</h3>
+                        <p class="text-gray-400">Multi-chain support with Linea & Solana</p>
+                        <div class="mt-4 px-3 py-1 bg-indigo-500/20 text-indigo-400 rounded-full text-sm font-medium">
+                            ✅ Active
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Demo Interface -->
+            <div
+                class="bg-gradient-to-br from-gray-800/50 to-gray-900/50 backdrop-blur-sm rounded-2xl p-8 border border-gray-600/30">
+                <h2 class="text-2xl font-semibold text-white mb-6 text-center">🚀 Demo Interface</h2>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- FHE Simulation -->
+                    <div class="space-y-4">
+                        <h3 class="text-lg font-semibold text-white">🔐 FHE Encryption Demo</h3>
+                        <div class="space-y-3">
+                            <input type="number" id="encryptValue" placeholder="Enter value to encrypt"
+                                class="w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white focus:border-purple-500 focus:outline-none">
+                            <button onclick="encryptValue()"
+                                class="w-full px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 rounded-lg font-semibold text-white transition-all duration-300">
+                                🔐 Encrypt Value
+                            </button>
+                            <div id="encryptedResult"
+                                class="text-sm text-gray-400 break-all p-3 bg-gray-800/30 rounded-lg"></div>
+                        </div>
+                    </div>
+
+                    <!-- Yield Calculator -->
+                    <div class="space-y-4">
+                        <h3 class="text-lg font-semibold text-white">💰 Yield Calculator</h3>
+                        <div class="space-y-3">
+                            <input type="number" id="stakeAmount" placeholder="Stake amount"
+                                class="w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white focus:border-blue-500 focus:outline-none">
+                            <button onclick="calculateYield()"
+                                class="w-full px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 rounded-lg font-semibold text-white transition-all duration-300">
+                                🎯 Calculate Yield
+                            </button>
+                            <div id="yieldResult" class="text-sm text-gray-400 p-3 bg-gray-800/30 rounded-lg"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Network Status -->
+                <div class="mt-8 pt-6 border-t border-gray-600/30">
+                    <h3 class="text-lg font-semibold text-white mb-4">🌐 Supported Networks</h3>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div class="text-center p-3 bg-gray-800/30 rounded-lg">
+                            <div class="text-white font-medium">Ethereum Sepolia</div>
+                            <div class="text-green-400 text-sm">✅ Ready</div>
+                        </div>
+                        <div class="text-center p-3 bg-gray-800/30 rounded-lg">
+                            <div class="text-white font-medium">Polygon Mumbai</div>
+                            <div class="text-green-400 text-sm">✅ Ready</div>
+                        </div>
+                        <div class="text-center p-3 bg-gray-800/30 rounded-lg">
+                            <div class="text-white font-medium">Linea Sepolia</div>
+                            <div class="text-green-400 text-sm">✅ Ready</div>
+                        </div>
+                        <div class="text-center p-3 bg-gray-800/30 rounded-lg">
+                            <div class="text-white font-medium">Solana Testnet</div>
+                            <div class="text-green-400 text-sm">✅ Ready</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="text-center mt-12 text-gray-400">
+                <p>🚀 Quantum DeFi Protocol - Simulation Mode Active</p>
+                <p class="text-sm mt-2">All features are simulated for demonstration purposes</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // FHE Simulation
+        function encryptValue() {
+            const value = document.getElementById('encryptValue').value;
+            if (!value) {
+                alert('Please enter a value to encrypt');
+                return;
+            }
+
+            const timestamp = Date.now();
+            const random = Math.random() * 1000000;
+            const encrypted = btoa(`${value}-${timestamp}-${random}`);
+
+            document.getElementById('encryptedResult').innerHTML = `
+                <div class="text-green-400 font-medium">Encrypted Value:</div>
+                <div class="break-all">${encrypted}</div>
+                <div class="text-xs text-gray-500 mt-2">Original: ${value}</div>
+            `;
+        }
+
+        // Yield Calculator
+        function calculateYield() {
+            const amount = parseFloat(document.getElementById('stakeAmount').value);
+            if (!amount || amount <= 0) {
+                alert('Please enter a valid stake amount');
+                return;
+            }
+
+            const apy = 5 + Math.random() * 10; // 5-15% APY
+            const dailyYield = (amount * apy / 100) / 365;
+            const monthlyYield = dailyYield * 30;
+            const yearlyYield = amount * apy / 100;
+
+            document.getElementById('yieldResult').innerHTML = `
+                <div class="text-blue-400 font-medium">Yield Projection:</div>
+                <div class="mt-2">
+                    <div>📊 APY: ${apy.toFixed(2)}%</div>
+                    <div>💰 Daily: $${dailyYield.toFixed(2)}</div>
+                    <div>📅 Monthly: $${monthlyYield.toFixed(2)}</div>
+                    <div>🗓️ Yearly: $${yearlyYield.toFixed(2)}</div>
+                </div>
+            `;
+        }
+
+        // Auto-update timestamp
+        setInterval(() => {
+            const now = new Date().toLocaleTimeString();
+            document.title = `Quantum DeFi Protocol - ${now}`;
+        }, 1000);
+    </script>
+</body>
+
+</html>

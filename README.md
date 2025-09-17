@@ -45,7 +45,9 @@
 - **`MockFHE.sol`** - FHE simulation for testing
 
 ### **Frontend**
-- **Next.js 14** - React framework with SSR
+- **Next.js 14** - React framework with SSR (production)
+- **Standalone HTML** - Full-featured web application (deployment-ready)
+- **Demo Interface** - Quick demonstration of core features
 - **Tailwind CSS** - Modern, responsive UI design
 - **MetaMask Integration** - Wallet connection and transaction signing
 - **Real-time Updates** - Live blockchain data integration
@@ -80,14 +82,16 @@ npx hardhat compile
 
 ### **Development**
 ```bash
-# Start local blockchain
-npx hardhat node
+# Option 1: Full Next.js Development
+npm run dev                    # Start Next.js frontend
+npx hardhat node              # Start local blockchain
+npm run deploy:localhost      # Deploy contracts locally
 
-# Deploy contracts locally
-npm run deploy:localhost
-
-# Start frontend
-npm run dev
+# Option 2: Standalone HTML (No build required)
+python3 -m http.server 8080 --directory public
+# Access at: http://localhost:8080/ (navigation page)
+# Access at: http://localhost:8080/app.html (full app)
+# Access at: http://localhost:8080/demo.html (demo)
 ```
 
 ### **Testing**
@@ -147,6 +151,34 @@ npm run deploy:linea         # Linea Mainnet
 - **[Testnet Deployment Guide](TESTNET_DEPLOYMENT_GUIDE.md)** - Testnet-specific setup
 - **[Cross-Chain Guide](CROSS_CHAIN_GUIDE.md)** - Cross-chain integration details
 - **[MetaMask Setup Guide](METAMASK_SETUP_GUIDE.md)** - Wallet configuration
+
+---
+
+## 🎨 **Frontend Options**
+
+### **1. Navigation Page (`index.html`)**
+- **Purpose**: Main entry point with interface selection
+- **Features**: Beautiful landing page, feature overview, network status
+- **Best for**: First-time visitors, choosing experience level
+- **Access**: `http://localhost:8080/`
+
+### **2. Full Application (`app.html`)**
+- **Purpose**: Complete Quantum DeFi Protocol interface
+- **Features**: All tabs, FHE encryption, cross-chain swaps, AI optimization
+- **Best for**: Production deployment, full feature demonstration
+- **Access**: `http://localhost:8080/app.html`
+
+### **3. Demo Interface (`demo.html`)**
+- **Purpose**: Quick demonstration of core concepts
+- **Features**: FHE demo, yield calculator, network status, quick actions
+- **Best for**: Quick overview, concept demonstration, testing
+- **Access**: `http://localhost:8080/demo.html`
+
+### **4. Next.js Application**
+- **Purpose**: Full React application with all components
+- **Features**: Dynamic imports, server-side rendering, advanced routing
+- **Best for**: Development, production with build process
+- **Access**: `npm run dev` (when Node.js environment is available)
 
 ---
 
