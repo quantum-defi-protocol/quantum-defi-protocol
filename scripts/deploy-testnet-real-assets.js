@@ -1,17 +1,16 @@
 const hre = require("hardhat");
-const { ethers } = require("hardhat");
 
 async function main() {
   console.log("🌐 Deploying Cross-Chain Protocol to Testnet with Real Assets...");
 
   try {
-    const [deployer] = await ethers.getSigners();
+    const [deployer] = await hre.ethers.getSigners();
     console.log("Deploying with account:", deployer.address);
 
     const balance = await deployer.getBalance();
-    console.log("Account balance:", ethers.formatEther(balance), "ETH");
+    console.log("Account balance:", hre.ethers.formatEther(balance), "ETH");
 
-    if (balance < ethers.parseEther("0.01")) {
+    if (balance < hre.ethers.parseEther("0.01")) {
       console.log("❌ Insufficient balance for deployment. Please fund your account.");
       return;
     }
@@ -50,7 +49,7 @@ async function main() {
 
     // Deploy CrossChainBridge
     console.log("\n🌉 Deploying CrossChainBridge...");
-    const CrossChainBridge = await ethers.getContractFactory("CrossChainBridge");
+    const CrossChainBridge = await hre.ethers.getContractFactory("CrossChainBridge");
     const crossChainBridge = await CrossChainBridge.deploy();
     await crossChainBridge.waitForDeployment();
     const bridgeAddress = await crossChainBridge.getAddress();
@@ -58,7 +57,7 @@ async function main() {
 
     // Deploy UniversalAssetManager
     console.log("\n🎯 Deploying UniversalAssetManager...");
-    const UniversalAssetManager = await ethers.getContractFactory("UniversalAssetManager");
+    const UniversalAssetManager = await hre.ethers.getContractFactory("UniversalAssetManager");
     const assetManager = await UniversalAssetManager.deploy(bridgeAddress);
     await assetManager.waitForDeployment();
     const managerAddress = await assetManager.getAddress();
@@ -75,10 +74,10 @@ async function main() {
         let decimals, totalSupply;
         if (symbol.includes("USDC")) {
           decimals = 6;
-          totalSupply = ethers.parseUnits("1000000", 6); // 1M USDC
+          totalSupply = hre.ethers.parseUnits("1000000", 6); // 1M USDC
         } else if (symbol.includes("WETH") || symbol.includes("WMATIC")) {
           decimals = 18;
-          totalSupply = ethers.parseUnits("1000000", 18); // 1M tokens
+          totalSupply = hre.ethers.parseUnits("1000000", 18); // 1M tokens
         }
 
         const registerTx = await assetManager.registerAsset(
