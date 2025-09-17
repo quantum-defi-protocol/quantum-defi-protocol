@@ -9,6 +9,21 @@
         content="Complete Quantum DeFi Protocol with confidential yield farming, cross-chain swaps, and AI optimization">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.ethers.io/lib/ethers-5.7.2.umd.min.js"></script>
+    <script>
+        // Fallback ethers loading
+        if (typeof ethers === 'undefined') {
+            console.log('Primary ethers CDN failed, loading fallback...');
+            const script = document.createElement('script');
+            script.src = 'https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js';
+            script.onload = function() {
+                console.log('Fallback ethers loaded successfully');
+            };
+            script.onerror = function() {
+                console.error('Both ethers CDNs failed to load');
+            };
+            document.head.appendChild(script);
+        }
+    </script>
     <style>
         body {
             background: linear-gradient(135deg, #111827 0%, #7c3aed 50%, #111827 100%);
@@ -497,7 +512,7 @@
             </div>
         </div>
     </div>
-    
+
     <script>
         // Tab switching functionality
         function showTab(tabName) {
@@ -720,6 +735,17 @@
 
                         // Initialize Quantum DeFi client and show success message
                         try {
+                            // Wait for ethers to be available
+                            let attempts = 0;
+                            while (typeof ethers === 'undefined' && attempts < 10) {
+                                await new Promise(resolve => setTimeout(resolve, 100));
+                                attempts++;
+                            }
+                            
+                            if (typeof ethers === 'undefined') {
+                                throw new Error('Ethers library failed to load. Please refresh the page.');
+                            }
+                            
                             const clientInfo = await window.quantumClient.initialize();
                             console.log('Quantum DeFi Client initialized:', clientInfo);
                             
@@ -807,7 +833,7 @@
             const networkStatus = document.querySelector('.network-status');
             if (networkStatus && clientInfo.contracts) {
                 const networkConfig = window.quantumClient.networkConfigs[clientInfo.network];
-                
+
                 // Test contract integration
                 let contractStatus = '';
                 try {
@@ -817,18 +843,18 @@
                 } catch (error) {
                     contractStatus = `⚠️ Contract integration failed`;
                 }
-                
+
                 let statusHtml = `
                     <div class="text-center p-4 bg-gray-800/30 rounded-lg border border-green-500/30">
                         <div class="text-white font-medium">${networkConfig ? networkConfig.name : clientInfo.network.toUpperCase()}</div>
                         <div class="text-green-400 text-sm">${contractStatus}</div>
                         <div class="text-xs text-gray-400 mt-2">
-                            <div>CrossChainBridge: ${clientInfo.contracts.CrossChainBridge ? 
-                                `<a href="${networkConfig?.blockExplorer}/address/${clientInfo.contracts.CrossChainBridge}" target="_blank" class="text-blue-400 hover:text-blue-300">${clientInfo.contracts.CrossChainBridge.slice(0, 10)}...</a>` : 
-                                'Not deployed'}</div>
-                            <div>ConfidentialYield: ${clientInfo.contracts.ConfidentialYieldProtocol && clientInfo.contracts.ConfidentialYieldProtocol !== "0x0000000000000000000000000000000000000000" ? 
-                                `<a href="${networkConfig?.blockExplorer}/address/${clientInfo.contracts.ConfidentialYieldProtocol}" target="_blank" class="text-blue-400 hover:text-blue-300">${clientInfo.contracts.ConfidentialYieldProtocol.slice(0, 10)}...</a>` : 
-                                'Not deployed'}</div>
+                            <div>CrossChainBridge: ${clientInfo.contracts.CrossChainBridge ?
+                        `<a href="${networkConfig?.blockExplorer}/address/${clientInfo.contracts.CrossChainBridge}" target="_blank" class="text-blue-400 hover:text-blue-300">${clientInfo.contracts.CrossChainBridge.slice(0, 10)}...</a>` :
+                        'Not deployed'}</div>
+                            <div>ConfidentialYield: ${clientInfo.contracts.ConfidentialYieldProtocol && clientInfo.contracts.ConfidentialYieldProtocol !== "0x0000000000000000000000000000000000000000" ?
+                        `<a href="${networkConfig?.blockExplorer}/address/${clientInfo.contracts.ConfidentialYieldProtocol}" target="_blank" class="text-blue-400 hover:text-blue-300">${clientInfo.contracts.ConfidentialYieldProtocol.slice(0, 10)}...</a>` :
+                        'Not deployed'}</div>
                         </div>
                         <div class="mt-2">
                             <button onclick="switchToBestNetwork()" class="px-3 py-1 bg-blue-600 hover:bg-blue-700 rounded text-xs text-white">
@@ -886,7 +912,7 @@
             document.body.appendChild(notification);
 
             // Remove after 3 seconds
-        setTimeout(() => {
+            setTimeout(() => {
                 notification.remove();
             }, 3000);
         }
@@ -956,7 +982,7 @@
                 this.signer = null;
                 this.contracts = {};
                 this.currentNetwork = null;
-                
+
                 // Contract ABIs (simplified for demo)
                 this.abis = {
                     MockFHE: [
@@ -1038,17 +1064,22 @@
                 if (typeof window.ethereum === 'undefined') {
                     throw new Error('MetaMask not detected. Please install MetaMask.');
                 }
-
+                
+                // Check if ethers is available
+                if (typeof ethers === 'undefined') {
+                    throw new Error('Ethers library not loaded. Please refresh the page.');
+                }
+                
                 this.provider = new ethers.providers.Web3Provider(window.ethereum);
                 this.signer = this.provider.getSigner();
 
                 // Get current network
                 const network = await this.provider.getNetwork();
                 this.currentNetwork = this.getNetworkName(network.chainId);
-                
+
                 // Initialize contract instances
                 await this.initializeContracts();
-                
+
                 return {
                     address: await this.signer.getAddress(),
                     network: this.currentNetwork,
@@ -1058,6 +1089,11 @@
 
             // Initialize contract instances
             async initializeContracts() {
+                // Check if ethers is available
+                if (typeof ethers === 'undefined') {
+                    throw new Error('Ethers library not loaded. Please refresh the page.');
+                }
+                
                 const networkAddresses = this.contractAddresses[this.currentNetwork];
                 
                 if (!networkAddresses) {
@@ -1079,7 +1115,7 @@
                     }
                 }
             }
-            
+
             // Get network name from chain ID
             getNetworkName(chainId) {
                 const networks = {
@@ -1099,11 +1135,11 @@
                     contracts: this.contractAddresses[this.getNetworkName(network.chainId)] || {}
                 };
             }
-            
+
             // Test contract connectivity
             async testContractIntegration() {
                 const results = {};
-                
+
                 try {
                     // Test ConfidentialYieldProtocol
                     if (this.contracts.ConfidentialYieldProtocol) {
@@ -1115,7 +1151,7 @@
                             fheAddress: fheAddress
                         };
                     }
-                    
+
                     // Test MockFHE
                     if (this.contracts.MockFHE) {
                         const testEncryption = await this.contracts.MockFHE.encrypt(100);
@@ -1124,7 +1160,7 @@
                             testEncryption: testEncryption
                         };
                     }
-                    
+
                     // Test UniversalAssetManager
                     if (this.contracts.UniversalAssetManager) {
                         const bridgeAddress = await this.contracts.UniversalAssetManager.bridge();
@@ -1133,19 +1169,19 @@
                             bridgeAddress: bridgeAddress
                         };
                     }
-                    
+
                     // Test CrossChainBridge
                     if (this.contracts.CrossChainBridge) {
                         results.CrossChainBridge = {
                             connected: true
                         };
                     }
-                    
+
                 } catch (error) {
                     console.error('Contract integration test failed:', error);
                     results.error = error.message;
                 }
-                
+
                 return results;
             }
         }
