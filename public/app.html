@@ -93,8 +93,9 @@
                 🔐 Confidential Yield
             </button>
             <button onclick="showTab('crosschain')" id="tab-crosschain"
-                class="px-6 py-3 rounded-md font-medium transition-all duration-300 text-gray-400 hover:text-white hover:bg-gray-700/50">
+                class="px-6 py-3 rounded-md font-medium transition-all duration-300 text-gray-400 hover:text-white hover:bg-gray-700/50 relative">
                 🌐 Cross-Chain
+                <span class="absolute -top-1 -right-1 bg-orange-500 text-white text-xs px-2 py-1 rounded-full">Coming Soon</span>
             </button>
             <button onclick="showTab('features')" id="tab-features"
                 class="px-6 py-3 rounded-md font-medium transition-all duration-300 text-gray-400 hover:text-white hover:bg-gray-700/50">
@@ -295,6 +296,22 @@
             <!-- Cross-Chain Tab -->
             <div id="content-crosschain" class="tab-content hidden">
                 <div class="space-y-8">
+                    <!-- Coming Soon Banner -->
+                    <div class="bg-gradient-to-r from-orange-500/20 to-yellow-500/20 border border-orange-500/30 rounded-2xl p-6 text-center">
+                        <div class="text-orange-400 text-6xl mb-4">🚧</div>
+                        <h3 class="text-2xl font-bold text-white mb-2">Cross-Chain Features Coming Soon!</h3>
+                        <p class="text-gray-300 mb-4">
+                            We're working hard to bring you seamless cross-chain functionality. 
+                            Focus on the core confidential farming experience for now!
+                        </p>
+                        <div class="flex justify-center space-x-4 text-sm">
+                            <span class="bg-green-500/20 text-green-400 px-3 py-1 rounded-full">✅ Confidential Farming</span>
+                            <span class="bg-green-500/20 text-green-400 px-3 py-1 rounded-full">✅ FHE Encryption</span>
+                            <span class="bg-green-500/20 text-green-400 px-3 py-1 rounded-full">✅ AI Optimization</span>
+                            <span class="bg-orange-500/20 text-orange-400 px-3 py-1 rounded-full">🚧 Cross-Chain</span>
+                        </div>
+                    </div>
+
                     <div class="text-center">
                         <h2 class="text-4xl font-bold text-white mb-4">
                             🌐 Cross-Chain Integration
@@ -516,7 +533,7 @@
             </div>
         </div>
     </div>
-
+    
     <script>
         // Tab switching functionality
         function showTab(tabName) {
@@ -674,7 +691,7 @@
                     encryptedTime,
                     encryptedLiquidity
                 );
-                
+
                 alert(`📡 AI Parameters Submitted!\n\n🔗 Transaction Hash: ${tx1.hash}\n⏳ Setting encrypted parameters...`);
                 await tx1.wait();
 
@@ -837,81 +854,11 @@
 
         // Cross-chain swap functions
         function generateSwapSecret() {
-            // Check wallet connection first
-            if (!window.quantumApp || !window.quantumApp.isWalletConnected) {
-                alert('⚠️ Wallet Connection Required\n\nPlease connect your wallet first before generating swap secrets.');
-                return;
-            }
-
-            const secret = '0x' + Math.random().toString(16).substr(2, 64);
-            const walletAddress = window.quantumApp.account ? window.quantumApp.account.substring(0, 6) + '...' + window.quantumApp.account.substring(38) : 'Unknown';
-            alert(`🔐 Swap Secret Generated!\n\n✅ Wallet Connected: ${walletAddress}\n\n🔑 Secret: ${secret}\n\n⚠️ IMPORTANT: Keep this secret safe! You'll need it to complete your cross-chain swap.`);
+            alert(`🚧 Cross-Chain Features - Coming Soon!\n\n🔐 Swap secret generation will be available when cross-chain functionality launches.\n\n✅ What's Available Now:\n• Confidential staking with FHE encryption\n• AI-powered yield optimization\n• Private fund withdrawals\n• Real blockchain transactions on Sepolia\n\n📅 Cross-chain features coming in the next update!\n\nFocus on the core confidential farming experience for now! 🔒`);
         }
 
-        async function initiateSwap() {
-            // Check wallet connection first
-            if (!window.quantumApp || !window.quantumApp.isWalletConnected) {
-                alert('⚠️ Wallet Connection Required\n\nPlease connect your wallet first before initiating cross-chain swaps.');
-                return;
-            }
-
-            // Check if contracts are loaded
-            if (!window.quantumApp.contracts || !window.quantumApp.contracts.CrossChainBridge) {
-                alert('⚠️ Contract Loading Required\n\nPlease wait for the CrossChainBridge contract to load before initiating swaps.');
-                return;
-            }
-
-            const fromChain = document.getElementById('fromChain').value;
-            const toChain = document.getElementById('toChain').value;
-            const asset = document.getElementById('swapAsset').value;
-            const amount = document.getElementById('swapAmount').value;
-
-            if (!amount || parseFloat(amount) <= 0) {
-                alert('⚠️ Please enter a valid amount to swap');
-                return;
-            }
-
-            if (!fromChain || !toChain || !asset) {
-                alert('⚠️ Please select source chain, target chain, and asset');
-                return;
-            }
-
-            try {
-                // Show loading state
-                const walletAddress = window.quantumApp.account ? window.quantumApp.account.substring(0, 6) + '...' + window.quantumApp.account.substring(38) : 'Unknown';
-                alert(`🌉 Starting Cross-Chain Swap...\n\n✅ Wallet Connected: ${walletAddress}\n✅ Contract Ready: CrossChainBridge\n\n⏳ Submitting swap to blockchain...`);
-
-                // Convert amount to wei (assuming 18 decimals for ETH)
-                const amountWei = window.quantumApp.provider.utils.parseEther(amount);
-
-                // Convert chain names to chain IDs
-                const chainIdMap = {
-                    'Sepolia': 11155111,
-                    'Arbitrum Sepolia': 421614,
-                    'Base Sepolia': 84532
-                };
-
-                const targetChainId = chainIdMap[toChain];
-                if (!targetChainId) {
-                    alert(`⚠️ Unsupported target chain: ${toChain}\n\nSupported chains: Sepolia, Arbitrum Sepolia, Base Sepolia`);
-                    return;
-                }
-
-                // NOTE: CrossChainBridge contract only supports ERC20 tokens, not ETH directly
-                // For demo purposes, we'll simulate the transaction
-                // In a real implementation, you'd need to:
-                // 1. Deploy ERC20 tokens for each chain
-                // 2. Create asset pools with those tokens
-                // 3. Use the actual token addresses
-                
-                alert(`⚠️ Cross-Chain Swap Limitation\n\nThe CrossChainBridge contract currently only supports ERC20 tokens, not native ETH.\n\nFor this demo, we'll simulate the transaction process:\n\n📊 Swap Details:\n• From: ${fromChain}\n• To: ${toChain}\n• Asset: ${asset}\n• Amount: ${amount}\n• Target Chain ID: ${targetChainId}\n\n💡 To enable real ETH swaps, the contract would need:\n• ERC20 wrapper tokens (WETH)\n• Asset pools with sufficient liquidity\n• Proper token approvals\n\n🔗 Simulated Transaction Hash: 0x${Math.random().toString(16).substr(2, 64)}`);
-                
-                return; // Exit early since we can't actually call the contract with ETH
-
-            } catch (error) {
-                console.error('Cross-chain swap error:', error);
-                alert(`❌ Swap Transaction Failed\n\nError: ${error.message}\n\nPlease check:\n• Wallet has sufficient ETH for gas and swap amount\n• Network connection is stable\n• Target chain is supported\n• Contract is properly deployed`);
-            }
+        function initiateSwap() {
+            alert(`🚧 Cross-Chain Swaps - Coming Soon!\n\n🌉 We're working on bringing you seamless cross-chain functionality!\n\n✅ What's Coming:\n• Multi-chain asset swaps\n• Cross-chain yield farming\n• Universal asset management\n• Quantum-resistant bridge security\n\n🔒 Current Focus:\n• Core confidential farming (✅ Working)\n• FHE encryption (✅ Working)\n• AI yield optimization (✅ Working)\n\n📅 Cross-chain features will be available in the next update!\n\nStay tuned for the complete Quantum DeFi experience! 🚀`);
         }
 
         // Wallet connection functionality
@@ -951,11 +898,15 @@
                                 throw new Error('Ethers library failed to load. Please refresh the page.');
                             }
 
-                            const clientInfo = await window.quantumClient.initialize();
+                            const clientInfo = await window.quantumApp.initialize();
                             console.log('Quantum DeFi Client initialized:', clientInfo);
 
+                            // Update quantumApp properties
+                            window.quantumApp.account = currentAccount;
+                            window.quantumApp.isWalletConnected = true;
+
                             // Test contract integration
-                            const contractTest = await window.quantumClient.testContractIntegration();
+                            const contractTest = await window.quantumApp.testContractIntegration();
                             console.log('Contract integration test:', contractTest);
 
                             if (contractTest.error) {
@@ -1117,7 +1068,7 @@
             document.body.appendChild(notification);
 
             // Remove after 3 seconds
-            setTimeout(() => {
+        setTimeout(() => {
                 notification.remove();
             }, 3000);
         }
@@ -1187,6 +1138,9 @@
                 this.signer = null;
                 this.contracts = {};
                 this.currentNetwork = null;
+                this.fheClient = null;
+                this.account = null;
+                this.isWalletConnected = false;
 
                 // Contract ABIs (simplified for demo)
                 this.abis = {
@@ -1311,6 +1265,16 @@
                     throw new Error(`Network ${this.currentNetwork} not supported`);
                 }
 
+                // Initialize FHE Client (MockFHE contract)
+                if (networkAddresses.MockFHE) {
+                    this.fheClient = new ethers.Contract(
+                        networkAddresses.MockFHE,
+                        this.abis.MockFHE,
+                        this.signer
+                    );
+                    console.log('✅ FHE Client initialized with MockFHE contract');
+                }
+
                 for (const [contractName, address] of Object.entries(networkAddresses)) {
                     if (address && address !== "0x0000000000000000000000000000000000000000" && this.abis[contractName]) {
                         try {
@@ -1402,7 +1366,7 @@
         }
 
         // Global client instance
-        window.quantumClient = new QuantumDeFiClient();
+        window.quantumApp = new QuantumDeFiClient();
     </script>
 </body>
 
