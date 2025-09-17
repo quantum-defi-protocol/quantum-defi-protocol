@@ -54,6 +54,7 @@
   "author": "Quantum DeFi Labs",
   "license": "MIT",
   "dependencies": {
+    "@nomiclabs/hardhat-ethers": "^2.2.3",
     "@solana/spl-token": "^0.4.1",
     "@solana/web3.js": "^1.87.6",
     "@tailwindcss/aspect-ratio": "^0.4.2",
@@ -61,7 +62,7 @@
     "@tailwindcss/typography": "^0.5.16",
     "autoprefixer": "10.4.16",
     "dotenv": "16.3.1",
-    "ethers": "6.8.1",
+    "ethers": "^5.8.0",
     "next": "14.0.4",
     "postcss": "8.4.31",
     "react": "18.2.0",

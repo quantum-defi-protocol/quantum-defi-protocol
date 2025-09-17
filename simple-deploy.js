@@ -17,10 +17,10 @@ async function main() {
     
     // Get balance
     const balance = await deployer.getBalance();
-    console.log("Balance:", hre.ethers.formatEther(balance), "ETH");
+    console.log("Balance:", hre.ethers.utils.formatEther(balance), "ETH");
     
     // Check if we have enough balance
-    if (balance < hre.ethers.parseEther("0.01")) {
+    if (balance.lt(hre.ethers.utils.parseEther("0.01"))) {
       console.log("❌ Insufficient balance. Need at least 0.01 ETH");
       return;
     }
@@ -31,16 +31,16 @@ async function main() {
     console.log("\n🌉 Deploying CrossChainBridge...");
     const CrossChainBridge = await hre.ethers.getContractFactory("CrossChainBridge");
     const bridge = await CrossChainBridge.deploy();
-    await bridge.waitForDeployment();
-    const bridgeAddress = await bridge.getAddress();
+    await bridge.deployed();
+    const bridgeAddress = bridge.address;
     console.log("✅ CrossChainBridge deployed to:", bridgeAddress);
     
     // Deploy UniversalAssetManager
     console.log("\n🎯 Deploying UniversalAssetManager...");
     const UniversalAssetManager = await hre.ethers.getContractFactory("UniversalAssetManager");
     const manager = await UniversalAssetManager.deploy(bridgeAddress);
-    await manager.waitForDeployment();
-    const managerAddress = await manager.getAddress();
+    await manager.deployed();
+    const managerAddress = manager.address;
     console.log("✅ UniversalAssetManager deployed to:", managerAddress);
     
     console.log("\n🎉 Deployment successful!");

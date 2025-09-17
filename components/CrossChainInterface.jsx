@@ -3,20 +3,21 @@ import { ethers } from 'ethers';
 
 // Cross-chain bridge contract addresses
 const CONTRACT_ADDRESSES = {
-    CrossChainBridge: "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9",
-    UniversalAssetManager: "0xDc64a140Aa3E981100a9bec4e4f8E8C0E5e4f7B1",
+    // Sepolia Testnet (Deployed)
+    CrossChainBridge: "0xd63Dbb8F0f0F77BA3B602a1eb49BCBf7bfEa046D",
+    UniversalAssetManager: "0x248b8676e75E0F7A61BfF42D30514fbAB52939eE",
 };
 
 // Supported chains configuration
 const SUPPORTED_CHAINS = {
     1: { name: "Ethereum", symbol: "ETH", rpcUrl: "https://mainnet.infura.io/v3/...", bridgeContract: "0x..." },
-    11155111: { name: "Sepolia", symbol: "ETH", rpcUrl: "https://sepolia.infura.io/v3/...", bridgeContract: "0x..." },
+    11155111: { name: "Sepolia", symbol: "ETH", rpcUrl: "https://sepolia.infura.io/v3/...", bridgeContract: "0xd63Dbb8F0f0F77BA3B602a1eb49BCBf7bfEa046D" },
     137: { name: "Polygon", symbol: "MATIC", rpcUrl: "https://polygon-rpc.com", bridgeContract: "0x..." },
     80001: { name: "Mumbai", symbol: "MATIC", rpcUrl: "https://rpc-mumbai.maticvigil.com", bridgeContract: "0x..." },
     42161: { name: "Arbitrum", symbol: "ETH", rpcUrl: "https://arb1.arbitrum.io/rpc", bridgeContract: "0x..." },
-    421614: { name: "Arbitrum Sepolia", symbol: "ETH", rpcUrl: "https://sepolia-rollup.arbitrum.io/rpc", bridgeContract: "0x..." },
+    421614: { name: "Arbitrum Sepolia", symbol: "ETH", rpcUrl: "https://sepolia-rollup.arbitrum.io/rpc", bridgeContract: "0x869ce2882e47a52Eb9ab87ca865C2034d0FC1ED3" },
     8453: { name: "Base", symbol: "ETH", rpcUrl: "https://mainnet.base.org", bridgeContract: "0x..." },
-    84532: { name: "Base Sepolia", symbol: "ETH", rpcUrl: "https://sepolia.base.org", bridgeContract: "0x..." },
+    84532: { name: "Base Sepolia", symbol: "ETH", rpcUrl: "https://sepolia.base.org", bridgeContract: "0xdBEE9399351a42e7F3dC6d988912988ec1ACC0cA" },
     59144: { name: "Linea", symbol: "ETH", rpcUrl: "https://linea-mainnet.infura.io/v3/...", bridgeContract: "0x..." },
     59141: { name: "Linea Sepolia", symbol: "ETH", rpcUrl: "https://linea-sepolia.infura.io/v3/...", bridgeContract: "0x..." },
     "solana": { name: "Solana", symbol: "SOL", rpcUrl: "https://api.mainnet-beta.solana.com", bridgeContract: "0x..." },
