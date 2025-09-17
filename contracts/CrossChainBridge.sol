@@ -136,17 +136,17 @@ contract CrossChainBridge is ReentrancyGuard, Pausable, Ownable {
         // Transfer tokens from caller
         IERC20(token).transferFrom(msg.sender, address(this), initialLiquidity);
         
-        assetPools[token] = AssetPool({
-            token: token,
-            totalLiquidity: initialLiquidity,
-            availableLiquidity: initialLiquidity,
-            isActive: true
-        });
+        // Initialize struct fields individually (can't assign struct with mappings directly)
+        AssetPool storage pool = assetPools[token];
+        pool.token = token;
+        pool.totalLiquidity = initialLiquidity;
+        pool.availableLiquidity = initialLiquidity;
+        pool.isActive = true;
         
         // Distribute liquidity across supported chains
         uint256 liquidityPerChain = initialLiquidity / supportedChainIds.length;
         for (uint256 i = 0; i < supportedChainIds.length; i++) {
-            assetPools[token].chainLiquidity[supportedChainIds[i]] = liquidityPerChain;
+            pool.chainLiquidity[supportedChainIds[i]] = liquidityPerChain;
         }
         
         supportedTokens.push(token);
