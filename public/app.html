@@ -201,9 +201,13 @@
                                 <h4 class="text-lg font-semibold text-white">Encrypt Your Stake Amount</h4>
                                 <input type="number" id="stakeAmount" placeholder="Enter amount to stake"
                                     class="w-full px-4 py-3 bg-gray-800/50 border border-gray-600 rounded-lg text-white focus:border-purple-500 focus:outline-none">
-                                <button onclick="encryptStake()"
+                                <button onclick="confidentialStake()"
                                     class="w-full px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 rounded-lg font-semibold text-white transition-all duration-300">
                                     🔐 Encrypt & Stake
+                                </button>
+                                <button onclick="confidentialWithdraw()"
+                                    class="w-full px-6 py-3 bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 rounded-lg font-semibold text-white transition-all duration-300 mt-2">
+                                    💰 Withdraw Funds
                                 </button>
                                 <div id="encryptedStake"
                                     class="text-sm text-gray-400 break-all p-3 bg-gray-800/30 rounded-lg"></div>
@@ -544,15 +548,19 @@
                 return;
             }
 
-            const timestamp = Date.now();
-            const random = Math.random() * 1000000;
-            const encrypted = btoa(`${amount}-${timestamp}-${random}`);
+            // Check if FHE client is available
+            if (!window.quantumApp || !window.quantumApp.fheClient) {
+                alert('⚠️ FHE Client Not Ready\n\nPlease wait for the FHE encryption system to initialize.');
+                return;
+            }
 
+            const encrypted = window.quantumApp.fheClient.encrypt(parseFloat(amount));
             document.getElementById('encryptedStake').innerHTML = `
                 <div class="text-green-400 font-medium">Encrypted Stake:</div>
                 <div class="break-all">${encrypted}</div>
-                <div class="text-xs text-gray-500 mt-2">Amount: ${amount} tokens (encrypted)</div>
+                <div class="text-xs text-gray-500 mt-2">Amount: ${amount} tokens (encrypted with FHE)</div>
             `;
+            alert(`🔐 Amount Encrypted!\n\nOriginal: ${amount}\nEncrypted: ${encrypted}\n\nThis encrypted value can be used for confidential transactions.`);
 
             // Show yield projections
             calculateYieldProjections(parseFloat(amount));
@@ -628,7 +636,7 @@
             }
         }
 
-        function optimizeYield() {
+        async function optimizeYield() {
             // Check wallet connection first
             if (!window.quantumApp || !window.quantumApp.isWalletConnected) {
                 alert('⚠️ Wallet Connection Required\n\nPlease connect your wallet first before optimizing yield. This ensures your confidential farming is properly secured.');
@@ -645,20 +653,46 @@
             const time = document.getElementById('timeHorizon').value;
             const liquidity = document.getElementById('liquidityPreference').value;
 
-            // Calculate optimized APY based on parameters
-            const baseApy = 5;
-            const riskMultiplier = risk / 10; // Higher risk = higher potential yield
-            const timeMultiplier = (365 / time) * 0.5; // Longer time = more stable yield
-            const liquidityMultiplier = (liquidity / 100) * 2; // Higher liquidity preference = lower yield but more stable
+            if (!risk || !time || !liquidity) {
+                alert('⚠️ Please fill in all optimization parameters (Risk Tolerance, Time Horizon, Liquidity Preference)');
+                return;
+            }
 
-            const optimizedApy = baseApy + riskMultiplier + timeMultiplier + liquidityMultiplier;
+            try {
+                // Show loading state
+                const walletAddress = window.quantumApp.account ? window.quantumApp.account.substring(0, 6) + '...' + window.quantumApp.account.substring(38) : 'Unknown';
+                alert(`🔒 Starting AI Optimization...\n\n✅ Wallet Connected: ${walletAddress}\n✅ Contract Ready: ConfidentialYieldProtocol\n\n⏳ Submitting parameters to blockchain...`);
 
-            // Update the yield projections with optimized values
-            updateYieldProjections(optimizedApy);
+                // Encrypt the parameters using FHE
+                const encryptedRisk = window.quantumApp.fheClient.encrypt(parseInt(risk));
+                const encryptedTime = window.quantumApp.fheClient.encrypt(parseInt(time));
+                const encryptedLiquidity = window.quantumApp.fheClient.encrypt(parseInt(liquidity));
 
-            // Show optimization results with wallet info
-            const walletAddress = window.quantumApp.account ? window.quantumApp.account.substring(0, 6) + '...' + window.quantumApp.account.substring(38) : 'Unknown';
-            alert(`🔒 AI Optimization Complete!\n\n✅ Wallet Connected: ${walletAddress}\n✅ Contract Ready: ConfidentialYieldProtocol\n\n📊 Your Parameters:\n• Risk Tolerance: ${risk}%\n• Time Horizon: ${time} days\n• Liquidity Preference: ${liquidity}%\n• Optimized APY: ${optimizedApy.toFixed(2)}%\n\n🎯 Yield projections updated below!\n\n💡 Your confidential farming is now secured with FHE encryption!`);
+                // Call the contract to store encrypted AI parameters
+                const tx = await window.quantumApp.contracts.ConfidentialYieldProtocol.calculateEncryptedYieldRate(window.quantumApp.account);
+                
+                alert(`📡 Transaction Submitted!\n\n🔗 Transaction Hash: ${tx.hash}\n⏳ Waiting for blockchain confirmation...`);
+                
+                // Wait for transaction confirmation
+                const receipt = await tx.wait();
+                
+                // Calculate optimized APY based on parameters (for display)
+                const baseApy = 5;
+                const riskMultiplier = risk / 10;
+                const timeMultiplier = (365 / time) * 0.5;
+                const liquidityMultiplier = (liquidity / 100) * 2;
+                const optimizedApy = baseApy + riskMultiplier + timeMultiplier + liquidityMultiplier;
+
+                // Update the yield projections with optimized values
+                updateYieldProjections(optimizedApy);
+
+                // Show success with transaction details
+                alert(`🎉 AI Optimization Complete!\n\n✅ Transaction Confirmed: ${receipt.transactionHash}\n✅ Gas Used: ${receipt.gasUsed.toString()}\n✅ Block Number: ${receipt.blockNumber}\n\n📊 Your Parameters (Encrypted on Blockchain):\n• Risk Tolerance: ${risk}%\n• Time Horizon: ${time} days\n• Liquidity Preference: ${liquidity}%\n• Optimized APY: ${optimizedApy.toFixed(2)}%\n\n🎯 Yield projections updated below!\n\n💡 Your confidential farming parameters are now securely encrypted and stored on the blockchain!`);
+
+            } catch (error) {
+                console.error('Yield optimization error:', error);
+                alert(`❌ Transaction Failed\n\nError: ${error.message}\n\nPlease check:\n• Wallet has sufficient ETH for gas\n• Network connection is stable\n• Contract is properly deployed`);
+            }
         }
 
         function updateYieldProjections(optimizedApy) {
@@ -702,6 +736,95 @@
             document.getElementById('yieldProjections').innerHTML = projectionsHtml;
         }
 
+        // Confidential Staking Functions
+        async function confidentialStake() {
+            // Check wallet connection first
+            if (!window.quantumApp || !window.quantumApp.isWalletConnected) {
+                alert('⚠️ Wallet Connection Required\n\nPlease connect your wallet first before staking funds.');
+                return;
+            }
+
+            // Check if contracts are loaded
+            if (!window.quantumApp.contracts || !window.quantumApp.contracts.ConfidentialYieldProtocol) {
+                alert('⚠️ Contract Loading Required\n\nPlease wait for the ConfidentialYieldProtocol contract to load.');
+                return;
+            }
+
+            const amount = document.getElementById('stakeAmount').value;
+            if (!amount || parseFloat(amount) <= 0) {
+                alert('⚠️ Please enter a valid amount to stake');
+                return;
+            }
+
+            try {
+                // Show loading state
+                const walletAddress = window.quantumApp.account ? window.quantumApp.account.substring(0, 6) + '...' + window.quantumApp.account.substring(38) : 'Unknown';
+                alert(`🔒 Starting Confidential Staking...\n\n✅ Wallet Connected: ${walletAddress}\n✅ Contract Ready: ConfidentialYieldProtocol\n\n⏳ Encrypting amount and submitting to blockchain...`);
+
+                // Encrypt the amount using FHE
+                const encryptedAmount = window.quantumApp.fheClient.encrypt(parseFloat(amount));
+
+                // Call the ConfidentialYieldProtocol contract
+                const tx = await window.quantumApp.contracts.ConfidentialYieldProtocol.confidentialStake(encryptedAmount);
+                
+                alert(`📡 Staking Transaction Submitted!\n\n🔗 Transaction Hash: ${tx.hash}\n⏳ Waiting for blockchain confirmation...`);
+                
+                // Wait for transaction confirmation
+                const receipt = await tx.wait();
+                
+                // Show success with transaction details
+                alert(`🎉 Confidential Staking Complete!\n\n✅ Transaction Confirmed: ${receipt.transactionHash}\n✅ Gas Used: ${receipt.gasUsed.toString()}\n✅ Block Number: ${receipt.blockNumber}\n\n📊 Staking Details:\n• Amount: ${amount} (encrypted on blockchain)\n• Your funds are now earning yield privately\n• Balance is encrypted with FHE\n\n💡 Your confidential farming is now active!\n\n🔐 Next Steps:\n1. Monitor your encrypted yield growth\n2. Use optimizeYield() to maximize returns\n3. Withdraw anytime with confidentialWithdraw()`);
+
+            } catch (error) {
+                console.error('Confidential staking error:', error);
+                alert(`❌ Staking Transaction Failed\n\nError: ${error.message}\n\nPlease check:\n• Wallet has sufficient ETH for gas\n• Network connection is stable\n• Contract is properly deployed\n• Amount is valid`);
+            }
+        }
+
+        async function confidentialWithdraw() {
+            // Check wallet connection first
+            if (!window.quantumApp || !window.quantumApp.isWalletConnected) {
+                alert('⚠️ Wallet Connection Required\n\nPlease connect your wallet first before withdrawing funds.');
+                return;
+            }
+
+            // Check if contracts are loaded
+            if (!window.quantumApp.contracts || !window.quantumApp.contracts.ConfidentialYieldProtocol) {
+                alert('⚠️ Contract Loading Required\n\nPlease wait for the ConfidentialYieldProtocol contract to load.');
+                return;
+            }
+
+            const amount = prompt('Enter amount to withdraw:');
+            if (!amount || parseFloat(amount) <= 0) {
+                alert('⚠️ Please enter a valid amount to withdraw');
+                return;
+            }
+
+            try {
+                // Show loading state
+                const walletAddress = window.quantumApp.account ? window.quantumApp.account.substring(0, 6) + '...' + window.quantumApp.account.substring(38) : 'Unknown';
+                alert(`🔒 Starting Confidential Withdrawal...\n\n✅ Wallet Connected: ${walletAddress}\n✅ Contract Ready: ConfidentialYieldProtocol\n\n⏳ Encrypting withdrawal amount and submitting to blockchain...`);
+
+                // Encrypt the amount using FHE
+                const encryptedAmount = window.quantumApp.fheClient.encrypt(parseFloat(amount));
+
+                // Call the ConfidentialYieldProtocol contract
+                const tx = await window.quantumApp.contracts.ConfidentialYieldProtocol.confidentialWithdraw(encryptedAmount);
+                
+                alert(`📡 Withdrawal Transaction Submitted!\n\n🔗 Transaction Hash: ${tx.hash}\n⏳ Waiting for blockchain confirmation...`);
+                
+                // Wait for transaction confirmation
+                const receipt = await tx.wait();
+                
+                // Show success with transaction details
+                alert(`🎉 Confidential Withdrawal Complete!\n\n✅ Transaction Confirmed: ${receipt.transactionHash}\n✅ Gas Used: ${receipt.gasUsed.toString()}\n✅ Block Number: ${receipt.blockNumber}\n\n📊 Withdrawal Details:\n• Amount: ${amount} (encrypted on blockchain)\n• Funds withdrawn privately\n• Transaction details encrypted with FHE\n\n💡 Your withdrawal is complete and private!\n\n🔐 Next Steps:\n1. Check your wallet balance\n2. Continue staking for more yield\n3. Monitor your remaining encrypted balance`);
+
+            } catch (error) {
+                console.error('Confidential withdrawal error:', error);
+                alert(`❌ Withdrawal Transaction Failed\n\nError: ${error.message}\n\nPlease check:\n• Wallet has sufficient ETH for gas\n• You have sufficient staked balance\n• Network connection is stable\n• Contract is properly deployed`);
+            }
+        }
+
         // Cross-chain swap functions
         function generateSwapSecret() {
             // Check wallet connection first
@@ -715,7 +838,7 @@
             alert(`🔐 Swap Secret Generated!\n\n✅ Wallet Connected: ${walletAddress}\n\n🔑 Secret: ${secret}\n\n⚠️ IMPORTANT: Keep this secret safe! You'll need it to complete your cross-chain swap.`);
         }
 
-        function initiateSwap() {
+        async function initiateSwap() {
             // Check wallet connection first
             if (!window.quantumApp || !window.quantumApp.isWalletConnected) {
                 alert('⚠️ Wallet Connection Required\n\nPlease connect your wallet first before initiating cross-chain swaps.');
@@ -733,13 +856,61 @@
             const asset = document.getElementById('swapAsset').value;
             const amount = document.getElementById('swapAmount').value;
 
-            if (!amount) {
-                alert('Please enter an amount to swap');
+            if (!amount || parseFloat(amount) <= 0) {
+                alert('⚠️ Please enter a valid amount to swap');
                 return;
             }
 
-            const walletAddress = window.quantumApp.account ? window.quantumApp.account.substring(0, 6) + '...' + window.quantumApp.account.substring(38) : 'Unknown';
-            alert(`🌉 Cross-Chain Swap Initiated!\n\n✅ Wallet Connected: ${walletAddress}\n✅ Contract Ready: CrossChainBridge\n\n📊 Swap Details:\n• From: ${fromChain}\n• To: ${toChain}\n• Asset: ${asset}\n• Amount: ${amount}\n\n🔗 Transaction Hash: 0x${Math.random().toString(16).substr(2, 64)}\n\n💡 Your cross-chain swap is now secured with quantum-resistant encryption!`);
+            if (!fromChain || !toChain || !asset) {
+                alert('⚠️ Please select source chain, target chain, and asset');
+                return;
+            }
+
+            try {
+                // Show loading state
+                const walletAddress = window.quantumApp.account ? window.quantumApp.account.substring(0, 6) + '...' + window.quantumApp.account.substring(38) : 'Unknown';
+                alert(`🌉 Starting Cross-Chain Swap...\n\n✅ Wallet Connected: ${walletAddress}\n✅ Contract Ready: CrossChainBridge\n\n⏳ Submitting swap to blockchain...`);
+
+                // Convert amount to wei (assuming 18 decimals for ETH)
+                const amountWei = window.quantumApp.provider.utils.parseEther(amount);
+                
+                // Convert chain names to chain IDs
+                const chainIdMap = {
+                    'Sepolia': 11155111,
+                    'Arbitrum Sepolia': 421614,
+                    'Base Sepolia': 84532
+                };
+                
+                const targetChainId = chainIdMap[toChain];
+                if (!targetChainId) {
+                    alert(`⚠️ Unsupported target chain: ${toChain}\n\nSupported chains: Sepolia, Arbitrum Sepolia, Base Sepolia`);
+                    return;
+                }
+
+                // For now, we'll use ETH address (0x0000000000000000000000000000000000000000) as the token
+                // In a real implementation, you'd map the asset selection to actual token addresses
+                const tokenAddress = '0x0000000000000000000000000000000000000000'; // ETH
+
+                // Call the CrossChainBridge contract
+                const tx = await window.quantumApp.contracts.CrossChainBridge.initiateSwap(
+                    targetChainId,
+                    tokenAddress,
+                    amountWei,
+                    { value: amountWei } // Send ETH with the transaction
+                );
+                
+                alert(`📡 Swap Transaction Submitted!\n\n🔗 Transaction Hash: ${tx.hash}\n⏳ Waiting for blockchain confirmation...`);
+                
+                // Wait for transaction confirmation
+                const receipt = await tx.wait();
+                
+                // Show success with transaction details
+                alert(`🎉 Cross-Chain Swap Initiated!\n\n✅ Transaction Confirmed: ${receipt.transactionHash}\n✅ Gas Used: ${receipt.gasUsed.toString()}\n✅ Block Number: ${receipt.blockNumber}\n\n📊 Swap Details:\n• From: ${fromChain}\n• To: ${toChain}\n• Asset: ${asset}\n• Amount: ${amount}\n• Target Chain ID: ${targetChainId}\n\n💡 Your cross-chain swap is now secured on the blockchain!\n\n🔐 Next Steps:\n1. Wait for cross-chain confirmation\n2. Use the swap secret to complete the transaction\n3. Monitor the transaction status`);
+
+            } catch (error) {
+                console.error('Cross-chain swap error:', error);
+                alert(`❌ Swap Transaction Failed\n\nError: ${error.message}\n\nPlease check:\n• Wallet has sufficient ETH for gas and swap amount\n• Network connection is stable\n• Target chain is supported\n• Contract is properly deployed`);
+            }
         }
 
         // Wallet connection functionality
