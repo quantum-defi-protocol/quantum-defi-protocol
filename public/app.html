@@ -81,6 +81,9 @@
         </div>
     </header>
 
+    <!-- Notification System -->
+    <div id="notificationContainer" class="fixed top-4 right-4 z-50 space-y-2"></div>
+
     <!-- Navigation Tabs -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
         <div class="flex space-x-1 bg-gray-800/50 rounded-lg p-1 mb-8">
@@ -92,10 +95,15 @@
                 class="px-6 py-3 rounded-md font-medium transition-all duration-300 text-gray-400 hover:text-white hover:bg-gray-700/50">
                 🔐 Confidential Yield
             </button>
+            <button onclick="showTab('monitor')" id="tab-monitor"
+                class="px-6 py-3 rounded-md font-medium transition-all duration-300 text-gray-400 hover:text-white hover:bg-gray-700/50">
+                📈 Monitor Yield
+            </button>
             <button onclick="showTab('crosschain')" id="tab-crosschain"
                 class="px-6 py-3 rounded-md font-medium transition-all duration-300 text-gray-400 hover:text-white hover:bg-gray-700/50 relative">
                 🌐 Cross-Chain
-                <span class="absolute -top-1 -right-1 bg-orange-500 text-white text-xs px-2 py-1 rounded-full">Coming Soon</span>
+                <span class="absolute -top-1 -right-1 bg-orange-500 text-white text-xs px-2 py-1 rounded-full">Coming
+                    Soon</span>
             </button>
             <button onclick="showTab('features')" id="tab-features"
                 class="px-6 py-3 rounded-md font-medium transition-all duration-300 text-gray-400 hover:text-white hover:bg-gray-700/50">
@@ -293,19 +301,204 @@
                 </div>
             </div>
 
+            <!-- Monitor Yield Tab -->
+            <div id="content-monitor" class="tab-content hidden">
+                <div class="space-y-8">
+                    <div class="text-center">
+                        <h2 class="text-4xl font-bold text-white mb-4">
+                            📈 Monitor Encrypted Yield Growth
+                        </h2>
+                        <p class="text-xl text-gray-300 max-w-3xl mx-auto">
+                            Track your confidential farming performance with real-time encrypted yield monitoring
+                        </p>
+                    </div>
+
+                    <!-- Asset Selection -->
+                    <div class="glass-effect rounded-2xl p-8 border border-purple-500/30">
+                        <h3 class="text-2xl font-semibold text-white mb-6">🔐 Asset Encryption Monitor</h3>
+                        
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                            <div class="space-y-4">
+                                <h4 class="text-lg font-semibold text-white">Select Asset to Monitor</h4>
+                                
+                                <div class="space-y-3">
+                                    <label class="flex items-center space-x-3 p-3 bg-gray-800/30 rounded-lg hover:bg-gray-700/30 cursor-pointer transition-colors">
+                                        <input type="radio" name="assetType" value="ETH" class="text-purple-600" checked>
+                                        <span class="text-white">🔷 ETH (Ethereum)</span>
+                                        <span class="text-gray-400 text-sm">Native cryptocurrency</span>
+                                    </label>
+                                    
+                                    <label class="flex items-center space-x-3 p-3 bg-gray-800/30 rounded-lg hover:bg-gray-700/30 cursor-pointer transition-colors">
+                                        <input type="radio" name="assetType" value="USDC" class="text-purple-600">
+                                        <span class="text-white">💵 USDC (USD Coin)</span>
+                                        <span class="text-gray-400 text-sm">Stablecoin</span>
+                                    </label>
+                                    
+                                    <label class="flex items-center space-x-3 p-3 bg-gray-800/30 rounded-lg hover:bg-gray-700/30 cursor-pointer transition-colors">
+                                        <input type="radio" name="assetType" value="WBTC" class="text-purple-600">
+                                        <span class="text-white">🟠 WBTC (Wrapped Bitcoin)</span>
+                                        <span class="text-gray-400 text-sm">Bitcoin on Ethereum</span>
+                                    </label>
+                                    
+                                    <label class="flex items-center space-x-3 p-3 bg-gray-800/30 rounded-lg hover:bg-gray-700/30 cursor-pointer transition-colors">
+                                        <input type="radio" name="assetType" value="LINK" class="text-purple-600">
+                                        <span class="text-white">🔗 LINK (Chainlink)</span>
+                                        <span class="text-gray-400 text-sm">Oracle token</span>
+                                    </label>
+                                </div>
+                                
+                                <button onclick="monitorAssetYield()" id="monitorButton"
+                                    class="w-full px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 rounded-lg font-semibold text-white transition-all duration-300">
+                                    🔍 Monitor Asset Yield
+                                </button>
+                            </div>
+
+                            <div class="space-y-4">
+                                <h4 class="text-lg font-semibold text-white">Current Encrypted Balance</h4>
+                                
+                                <div id="encryptedBalanceDisplay" class="space-y-3">
+                                    <div class="p-4 bg-gray-800/30 rounded-lg border border-gray-600">
+                                        <div class="text-gray-400 text-sm">Encrypted Balance</div>
+                                        <div id="encryptedBalance" class="text-white font-mono text-lg break-all">
+                                            Not connected
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="p-4 bg-gray-800/30 rounded-lg border border-gray-600">
+                                        <div class="text-gray-400 text-sm">Encrypted Yield Rate</div>
+                                        <div id="encryptedYieldRate" class="text-green-400 font-mono text-lg">
+                                            Not calculated
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="p-4 bg-gray-800/30 rounded-lg border border-gray-600">
+                                        <div class="text-gray-400 text-sm">Total Encrypted Yield</div>
+                                        <div id="totalEncryptedYield" class="text-blue-400 font-mono text-lg">
+                                            Not calculated
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Yield Growth Chart -->
+                    <div class="glass-effect rounded-2xl p-8 border border-green-500/30">
+                        <h3 class="text-2xl font-semibold text-white mb-6">📊 Yield Growth Timeline</h3>
+                        
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                            <div class="space-y-4">
+                                <h4 class="text-lg font-semibold text-white">Performance Metrics</h4>
+                                
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div class="p-4 bg-gray-800/30 rounded-lg text-center">
+                                        <div class="text-gray-400 text-sm">24h Yield</div>
+                                        <div id="yield24h" class="text-green-400 text-xl font-bold">+0.00%</div>
+                                    </div>
+                                    
+                                    <div class="p-4 bg-gray-800/30 rounded-lg text-center">
+                                        <div class="text-gray-400 text-sm">7d Yield</div>
+                                        <div id="yield7d" class="text-blue-400 text-xl font-bold">+0.00%</div>
+                                    </div>
+                                    
+                                    <div class="p-4 bg-gray-800/30 rounded-lg text-center">
+                                        <div class="text-gray-400 text-sm">30d Yield</div>
+                                        <div id="yield30d" class="text-purple-400 text-xl font-bold">+0.00%</div>
+                                    </div>
+                                    
+                                    <div class="p-4 bg-gray-800/30 rounded-lg text-center">
+                                        <div class="text-gray-400 text-sm">Total APY</div>
+                                        <div id="totalAPY" class="text-yellow-400 text-xl font-bold">0.00%</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="space-y-4">
+                                <h4 class="text-lg font-semibold text-white">Yield History</h4>
+                                
+                                <div id="yieldHistory" class="space-y-2 max-h-64 overflow-y-auto">
+                                    <div class="text-center text-gray-400 py-8">
+                                        No yield history available. Start monitoring to see your encrypted yield growth!
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- AI Optimization Status -->
+                    <div class="glass-effect rounded-2xl p-8 border border-blue-500/30">
+                        <h3 class="text-2xl font-semibold text-white mb-6">🤖 AI Optimization Status</h3>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div class="p-6 bg-gray-800/30 rounded-lg">
+                                <h4 class="text-lg font-semibold text-white mb-3">Risk Parameters</h4>
+                                <div id="riskParams" class="space-y-2 text-sm">
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-400">Risk Tolerance:</span>
+                                        <span class="text-white">Not set</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-400">Time Horizon:</span>
+                                        <span class="text-white">Not set</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-400">Liquidity Pref:</span>
+                                        <span class="text-white">Not set</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="p-6 bg-gray-800/30 rounded-lg">
+                                <h4 class="text-lg font-semibold text-white mb-3">Market Data</h4>
+                                <div id="marketData" class="space-y-2 text-sm">
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-400">Volatility:</span>
+                                        <span class="text-white">Encrypted</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-400">Trend:</span>
+                                        <span class="text-white">Encrypted</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-400">Optimal Rate:</span>
+                                        <span class="text-white">Encrypted</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="p-6 bg-gray-800/30 rounded-lg">
+                                <h4 class="text-lg font-semibold text-white mb-3">Optimization Actions</h4>
+                                <div class="space-y-2">
+                                    <button onclick="refreshYieldData()" 
+                                        class="w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-white text-sm transition-colors">
+                                        🔄 Refresh Data
+                                    </button>
+                                    <button onclick="reoptimizeYield()" 
+                                        class="w-full px-4 py-2 bg-purple-600 hover:bg-purple-700 rounded-lg text-white text-sm transition-colors">
+                                        🎯 Re-optimize
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Cross-Chain Tab -->
             <div id="content-crosschain" class="tab-content hidden">
                 <div class="space-y-8">
                     <!-- Coming Soon Banner -->
-                    <div class="bg-gradient-to-r from-orange-500/20 to-yellow-500/20 border border-orange-500/30 rounded-2xl p-6 text-center">
+                    <div
+                        class="bg-gradient-to-r from-orange-500/20 to-yellow-500/20 border border-orange-500/30 rounded-2xl p-6 text-center">
                         <div class="text-orange-400 text-6xl mb-4">🚧</div>
                         <h3 class="text-2xl font-bold text-white mb-2">Cross-Chain Features Coming Soon!</h3>
                         <p class="text-gray-300 mb-4">
-                            We're working hard to bring you seamless cross-chain functionality. 
+                            We're working hard to bring you seamless cross-chain functionality.
                             Focus on the core confidential farming experience for now!
                         </p>
                         <div class="flex justify-center space-x-4 text-sm">
-                            <span class="bg-green-500/20 text-green-400 px-3 py-1 rounded-full">✅ Confidential Farming</span>
+                            <span class="bg-green-500/20 text-green-400 px-3 py-1 rounded-full">✅ Confidential
+                                Farming</span>
                             <span class="bg-green-500/20 text-green-400 px-3 py-1 rounded-full">✅ FHE Encryption</span>
                             <span class="bg-green-500/20 text-green-400 px-3 py-1 rounded-full">✅ AI Optimization</span>
                             <span class="bg-orange-500/20 text-orange-400 px-3 py-1 rounded-full">🚧 Cross-Chain</span>
@@ -533,7 +726,7 @@
             </div>
         </div>
     </div>
-    
+
     <script>
         // Tab switching functionality
         function showTab(tabName) {
@@ -561,13 +754,13 @@
         function encryptStake() {
             const amount = document.getElementById('stakeAmount').value;
             if (!amount) {
-                alert('Please enter a stake amount');
+                showNotification('Please enter a stake amount', 'warning');
                 return;
             }
 
             // Check if FHE client is available
             if (!window.quantumApp || !window.quantumApp.fheClient) {
-                alert('⚠️ FHE Client Not Ready\n\nPlease wait for the FHE encryption system to initialize.');
+                showNotification('⚠️ FHE Client Not Ready. Please wait for the FHE encryption system to initialize.', 'warning');
                 return;
             }
 
@@ -577,7 +770,7 @@
                 <div class="break-all">${encrypted}</div>
                 <div class="text-xs text-gray-500 mt-2">Amount: ${amount} tokens (encrypted with FHE)</div>
             `;
-            alert(`🔐 Amount Encrypted!\n\nOriginal: ${amount}\nEncrypted: ${encrypted}\n\nThis encrypted value can be used for confidential transactions.`);
+            showNotification(`🔐 Amount Encrypted! Original: ${amount}. This encrypted value can be used for confidential transactions.`, 'success');
 
             // Show yield projections
             calculateYieldProjections(parseFloat(amount));
@@ -656,13 +849,13 @@
         async function optimizeYield() {
             // Check wallet connection first
             if (!window.quantumApp || !window.quantumApp.isWalletConnected) {
-                alert('⚠️ Wallet Connection Required\n\nPlease connect your wallet first before optimizing yield. This ensures your confidential farming is properly secured.');
+                showNotification('⚠️ Please connect your wallet first before optimizing yield. This ensures your confidential farming is properly secured.', 'warning');
                 return;
             }
 
             // Check if contracts are loaded
             if (!window.quantumApp.contracts || !window.quantumApp.contracts.ConfidentialYieldProtocol) {
-                alert('⚠️ Contract Loading Required\n\nPlease wait for the ConfidentialYieldProtocol contract to load before optimizing yield.');
+                showNotification('⚠️ Please wait for the ConfidentialYieldProtocol contract to load before optimizing yield.', 'warning');
                 return;
             }
 
@@ -671,14 +864,13 @@
             const liquidity = document.getElementById('liquidityPreference').value;
 
             if (!risk || !time || !liquidity) {
-                alert('⚠️ Please fill in all optimization parameters (Risk Tolerance, Time Horizon, Liquidity Preference)');
+                showNotification('⚠️ Please fill in all optimization parameters (Risk Tolerance, Time Horizon, Liquidity Preference)', 'warning');
                 return;
             }
 
             try {
                 // Show loading state
-                const walletAddress = window.quantumApp.account ? window.quantumApp.account.substring(0, 6) + '...' + window.quantumApp.account.substring(38) : 'Unknown';
-                alert(`🔒 Starting AI Optimization...\n\n✅ Wallet Connected: ${walletAddress}\n✅ Contract Ready: ConfidentialYieldProtocol\n\n⏳ Submitting parameters to blockchain...`);
+                showNotification('🔒 Starting AI Optimization...', 'info');
 
                 // Encrypt the parameters using FHE
                 const encryptedRisk = window.quantumApp.fheClient.encrypt(parseInt(risk));
@@ -691,18 +883,18 @@
                     encryptedTime,
                     encryptedLiquidity
                 );
-
-                alert(`📡 AI Parameters Submitted!\n\n🔗 Transaction Hash: ${tx1.hash}\n⏳ Setting encrypted parameters...`);
+                
+                showNotification(`📡 AI Parameters Submitted! Transaction: ${tx1.hash.substring(0, 10)}...`, 'info');
                 await tx1.wait();
 
                 // Then calculate the encrypted yield rate
                 const tx = await window.quantumApp.contracts.ConfidentialYieldProtocol.calculateEncryptedYieldRate(window.quantumApp.account);
 
-                alert(`📡 Transaction Submitted!\n\n🔗 Transaction Hash: ${tx.hash}\n⏳ Waiting for blockchain confirmation...`);
-
+                showNotification(`📡 Transaction Submitted! Hash: ${tx.hash.substring(0, 10)}...`, 'info');
+                
                 // Wait for transaction confirmation
                 const receipt = await tx.wait();
-
+                
                 // Calculate optimized APY based on parameters (for display)
                 const baseApy = 5;
                 const riskMultiplier = risk / 10;
@@ -714,11 +906,11 @@
                 updateYieldProjections(optimizedApy);
 
                 // Show success with transaction details
-                alert(`🎉 AI Optimization Complete!\n\n✅ Transaction Confirmed: ${receipt.transactionHash}\n✅ Gas Used: ${receipt.gasUsed.toString()}\n✅ Block Number: ${receipt.blockNumber}\n\n📊 Your Parameters (Encrypted on Blockchain):\n• Risk Tolerance: ${risk}%\n• Time Horizon: ${time} days\n• Liquidity Preference: ${liquidity}%\n• Optimized APY: ${optimizedApy.toFixed(2)}%\n\n🎯 Yield projections updated below!\n\n💡 Your confidential farming parameters are now securely encrypted and stored on the blockchain!`);
+                showNotification(`🎉 AI Optimization Complete! APY: ${optimizedApy.toFixed(2)}%. Your parameters are now encrypted and stored on blockchain!`, 'success');
 
             } catch (error) {
                 console.error('Yield optimization error:', error);
-                alert(`❌ Transaction Failed\n\nError: ${error.message}\n\nPlease check:\n• Wallet has sufficient ETH for gas\n• Network connection is stable\n• Contract is properly deployed`);
+                showNotification(`❌ Transaction Failed: ${error.message}`, 'error');
             }
         }
 
@@ -767,98 +959,286 @@
         async function confidentialStake() {
             // Check wallet connection first
             if (!window.quantumApp || !window.quantumApp.isWalletConnected) {
-                alert('⚠️ Wallet Connection Required\n\nPlease connect your wallet first before staking funds.');
+                showNotification('⚠️ Please connect your wallet first before staking funds.', 'warning');
                 return;
             }
 
             // Check if contracts are loaded
             if (!window.quantumApp.contracts || !window.quantumApp.contracts.ConfidentialYieldProtocol) {
-                alert('⚠️ Contract Loading Required\n\nPlease wait for the ConfidentialYieldProtocol contract to load.');
+                showNotification('⚠️ Please wait for the ConfidentialYieldProtocol contract to load.', 'warning');
                 return;
             }
 
             const amount = document.getElementById('stakeAmount').value;
             if (!amount || parseFloat(amount) <= 0) {
-                alert('⚠️ Please enter a valid amount to stake');
+                showNotification('⚠️ Please enter a valid amount to stake', 'warning');
                 return;
             }
 
             try {
                 // Show loading state
-                const walletAddress = window.quantumApp.account ? window.quantumApp.account.substring(0, 6) + '...' + window.quantumApp.account.substring(38) : 'Unknown';
-                alert(`🔒 Starting Confidential Staking...\n\n✅ Wallet Connected: ${walletAddress}\n✅ Contract Ready: ConfidentialYieldProtocol\n\n⏳ Encrypting amount and submitting to blockchain...`);
+                showNotification('🔒 Starting Confidential Staking...', 'info');
 
                 // Encrypt the amount using FHE
                 const encryptedAmount = window.quantumApp.fheClient.encrypt(parseFloat(amount));
 
                 // Call the ConfidentialYieldProtocol contract
                 const tx = await window.quantumApp.contracts.ConfidentialYieldProtocol.confidentialStake(encryptedAmount);
-
-                alert(`📡 Staking Transaction Submitted!\n\n🔗 Transaction Hash: ${tx.hash}\n⏳ Waiting for blockchain confirmation...`);
-
+                
+                showNotification(`📡 Staking Transaction Submitted! Hash: ${tx.hash.substring(0, 10)}...`, 'info');
+                
                 // Wait for transaction confirmation
                 const receipt = await tx.wait();
-
+                
                 // Show success with transaction details
-                alert(`🎉 Confidential Staking Complete!\n\n✅ Transaction Confirmed: ${receipt.transactionHash}\n✅ Gas Used: ${receipt.gasUsed.toString()}\n✅ Block Number: ${receipt.blockNumber}\n\n📊 Staking Details:\n• Amount: ${amount} (encrypted on blockchain)\n• Your funds are now earning yield privately\n• Balance is encrypted with FHE\n\n💡 Your confidential farming is now active!\n\n🔐 Next Steps:\n1. Monitor your encrypted yield growth\n2. Use optimizeYield() to maximize returns\n3. Withdraw anytime with confidentialWithdraw()`);
+                showNotification(`🎉 Confidential Staking Complete! Amount: ${amount} (encrypted). Your confidential farming is now active!`, 'success');
 
             } catch (error) {
                 console.error('Confidential staking error:', error);
-                alert(`❌ Staking Transaction Failed\n\nError: ${error.message}\n\nPlease check:\n• Wallet has sufficient ETH for gas\n• Network connection is stable\n• Contract is properly deployed\n• Amount is valid`);
+                showNotification(`❌ Staking Transaction Failed: ${error.message}`, 'error');
             }
         }
 
         async function confidentialWithdraw() {
             // Check wallet connection first
             if (!window.quantumApp || !window.quantumApp.isWalletConnected) {
-                alert('⚠️ Wallet Connection Required\n\nPlease connect your wallet first before withdrawing funds.');
+                showNotification('⚠️ Please connect your wallet first before withdrawing funds.', 'warning');
                 return;
             }
 
             // Check if contracts are loaded
             if (!window.quantumApp.contracts || !window.quantumApp.contracts.ConfidentialYieldProtocol) {
-                alert('⚠️ Contract Loading Required\n\nPlease wait for the ConfidentialYieldProtocol contract to load.');
+                showNotification('⚠️ Please wait for the ConfidentialYieldProtocol contract to load.', 'warning');
                 return;
             }
 
             const amount = prompt('Enter amount to withdraw:');
             if (!amount || parseFloat(amount) <= 0) {
-                alert('⚠️ Please enter a valid amount to withdraw');
+                showNotification('⚠️ Please enter a valid amount to withdraw', 'warning');
                 return;
             }
 
             try {
                 // Show loading state
-                const walletAddress = window.quantumApp.account ? window.quantumApp.account.substring(0, 6) + '...' + window.quantumApp.account.substring(38) : 'Unknown';
-                alert(`🔒 Starting Confidential Withdrawal...\n\n✅ Wallet Connected: ${walletAddress}\n✅ Contract Ready: ConfidentialYieldProtocol\n\n⏳ Encrypting withdrawal amount and submitting to blockchain...`);
+                showNotification('🔒 Starting Confidential Withdrawal...', 'info');
 
                 // Encrypt the amount using FHE
                 const encryptedAmount = window.quantumApp.fheClient.encrypt(parseFloat(amount));
 
                 // Call the ConfidentialYieldProtocol contract
                 const tx = await window.quantumApp.contracts.ConfidentialYieldProtocol.confidentialWithdraw(encryptedAmount);
-
-                alert(`📡 Withdrawal Transaction Submitted!\n\n🔗 Transaction Hash: ${tx.hash}\n⏳ Waiting for blockchain confirmation...`);
-
+                
+                showNotification(`📡 Withdrawal Transaction Submitted! Hash: ${tx.hash.substring(0, 10)}...`, 'info');
+                
                 // Wait for transaction confirmation
                 const receipt = await tx.wait();
-
+                
                 // Show success with transaction details
-                alert(`🎉 Confidential Withdrawal Complete!\n\n✅ Transaction Confirmed: ${receipt.transactionHash}\n✅ Gas Used: ${receipt.gasUsed.toString()}\n✅ Block Number: ${receipt.blockNumber}\n\n📊 Withdrawal Details:\n• Amount: ${amount} (encrypted on blockchain)\n• Funds withdrawn privately\n• Transaction details encrypted with FHE\n\n💡 Your withdrawal is complete and private!\n\n🔐 Next Steps:\n1. Check your wallet balance\n2. Continue staking for more yield\n3. Monitor your remaining encrypted balance`);
+                showNotification(`🎉 Confidential Withdrawal Complete! Amount: ${amount} (encrypted). Your withdrawal is complete and private!`, 'success');
 
             } catch (error) {
                 console.error('Confidential withdrawal error:', error);
-                alert(`❌ Withdrawal Transaction Failed\n\nError: ${error.message}\n\nPlease check:\n• Wallet has sufficient ETH for gas\n• You have sufficient staked balance\n• Network connection is stable\n• Contract is properly deployed`);
+                showNotification(`❌ Withdrawal Transaction Failed: ${error.message}`, 'error');
+            }
+        }
+
+        // Notification System
+        function showNotification(message, type = 'info', duration = 5000) {
+            const container = document.getElementById('notificationContainer');
+            const notification = document.createElement('div');
+            
+            const colors = {
+                success: 'bg-green-600 border-green-500',
+                error: 'bg-red-600 border-red-500',
+                warning: 'bg-orange-600 border-orange-500',
+                info: 'bg-blue-600 border-blue-500'
+            };
+            
+            const icons = {
+                success: '✅',
+                error: '❌',
+                warning: '⚠️',
+                info: 'ℹ️'
+            };
+            
+            notification.className = `${colors[type]} border rounded-lg p-4 text-white shadow-lg transform transition-all duration-300 translate-x-full opacity-0`;
+            notification.innerHTML = `
+                <div class="flex items-start space-x-3">
+                    <span class="text-xl">${icons[type]}</span>
+                    <div class="flex-1">
+                        <div class="text-sm font-medium">${message}</div>
+                    </div>
+                    <button onclick="this.parentElement.parentElement.remove()" class="text-white/70 hover:text-white text-lg">&times;</button>
+                </div>
+            `;
+            
+            container.appendChild(notification);
+            
+            // Animate in
+            setTimeout(() => {
+                notification.classList.remove('translate-x-full', 'opacity-0');
+            }, 100);
+            
+            // Auto remove
+            setTimeout(() => {
+                notification.classList.add('translate-x-full', 'opacity-0');
+                setTimeout(() => {
+                    if (notification.parentElement) {
+                        notification.remove();
+                    }
+                }, 300);
+            }, duration);
+        }
+
+        // Monitor Yield Functions
+        async function monitorAssetYield() {
+            // Check wallet connection first
+            if (!window.quantumApp || !window.quantumApp.isWalletConnected) {
+                showNotification('⚠️ Please connect your wallet first before monitoring yield', 'warning');
+                return;
+            }
+
+            // Check if contracts are loaded
+            if (!window.quantumApp.contracts || !window.quantumApp.contracts.ConfidentialYieldProtocol) {
+                showNotification('⚠️ Please wait for the ConfidentialYieldProtocol contract to load', 'warning');
+                return;
+            }
+
+            const selectedAsset = document.querySelector('input[name="assetType"]:checked').value;
+            
+            try {
+                showNotification(`🔍 Monitoring ${selectedAsset} yield...`, 'info');
+
+                // Get encrypted balance
+                const encryptedBalance = await window.quantumApp.contracts.ConfidentialYieldProtocol.getEncryptedBalance(window.quantumApp.account);
+                document.getElementById('encryptedBalance').textContent = encryptedBalance;
+
+                // Get encrypted total yield
+                const totalYield = await window.quantumApp.contracts.ConfidentialYieldProtocol.getEncryptedTotalYield(window.quantumApp.account);
+                document.getElementById('totalEncryptedYield').textContent = totalYield;
+
+                // Get AI parameters
+                const aiParams = await window.quantumApp.contracts.ConfidentialYieldProtocol.getEncryptedAIParams(window.quantumApp.account);
+                
+                // Update risk parameters display
+                const riskParamsDiv = document.getElementById('riskParams');
+                riskParamsDiv.innerHTML = `
+                    <div class="flex justify-between">
+                        <span class="text-gray-400">Risk Tolerance:</span>
+                        <span class="text-white">${aiParams.riskTolerance || 'Not set'}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-400">Time Horizon:</span>
+                        <span class="text-white">${aiParams.timeHorizon || 'Not set'}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-400">Liquidity Pref:</span>
+                        <span class="text-white">${aiParams.liquidityPreference || 'Not set'}</span>
+                    </div>
+                `;
+
+                // Simulate yield calculations (in real implementation, these would be decrypted)
+                const mockYields = {
+                    '24h': Math.random() * 2,
+                    '7d': Math.random() * 5,
+                    '30d': Math.random() * 15,
+                    'apy': Math.random() * 20 + 5
+                };
+
+                document.getElementById('yield24h').textContent = `+${mockYields['24h'].toFixed(2)}%`;
+                document.getElementById('yield7d').textContent = `+${mockYields['7d'].toFixed(2)}%`;
+                document.getElementById('yield30d').textContent = `+${mockYields['30d'].toFixed(2)}%`;
+                document.getElementById('totalAPY').textContent = `${mockYields.apy.toFixed(2)}%`;
+
+                // Add to yield history
+                const yieldHistory = document.getElementById('yieldHistory');
+                const now = new Date().toLocaleString();
+                const historyEntry = document.createElement('div');
+                historyEntry.className = 'p-3 bg-gray-800/30 rounded-lg border border-gray-600';
+                historyEntry.innerHTML = `
+                    <div class="flex justify-between items-center">
+                        <span class="text-white">${selectedAsset} Yield Check</span>
+                        <span class="text-gray-400 text-sm">${now}</span>
+                    </div>
+                    <div class="text-green-400 text-sm mt-1">APY: ${mockYields.apy.toFixed(2)}%</div>
+                `;
+                
+                if (yieldHistory.children[0] && yieldHistory.children[0].textContent.includes('No yield history')) {
+                    yieldHistory.innerHTML = '';
+                }
+                yieldHistory.insertBefore(historyEntry, yieldHistory.firstChild);
+
+                showNotification(`✅ ${selectedAsset} yield monitoring started!`, 'success');
+
+            } catch (error) {
+                console.error('Yield monitoring error:', error);
+                showNotification(`❌ Failed to monitor ${selectedAsset} yield: ${error.message}`, 'error');
+            }
+        }
+
+        async function refreshYieldData() {
+            if (!window.quantumApp || !window.quantumApp.isWalletConnected) {
+                showNotification('⚠️ Please connect your wallet first', 'warning');
+                return;
+            }
+
+            showNotification('🔄 Refreshing yield data...', 'info');
+            
+            try {
+                // Refresh all yield data
+                await monitorAssetYield();
+                
+                // Update market data display
+                const marketData = await window.quantumApp.contracts.ConfidentialYieldProtocol.getEncryptedMarketData();
+                document.getElementById('marketData').innerHTML = `
+                    <div class="flex justify-between">
+                        <span class="text-gray-400">Volatility:</span>
+                        <span class="text-white">${marketData.volatility}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-400">Trend:</span>
+                        <span class="text-white">${marketData.trend}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-400">Optimal Rate:</span>
+                        <span class="text-white">${marketData.optimalRate}</span>
+                    </div>
+                `;
+                
+                showNotification('✅ Yield data refreshed successfully!', 'success');
+            } catch (error) {
+                console.error('Refresh error:', error);
+                showNotification(`❌ Failed to refresh data: ${error.message}`, 'error');
+            }
+        }
+
+        async function reoptimizeYield() {
+            if (!window.quantumApp || !window.quantumApp.isWalletConnected) {
+                showNotification('⚠️ Please connect your wallet first', 'warning');
+                return;
+            }
+
+            showNotification('🎯 Re-optimizing yield parameters...', 'info');
+            
+            try {
+                // Re-calculate yield rate
+                const newYieldRate = await window.quantumApp.contracts.ConfidentialYieldProtocol.calculateEncryptedYieldRate(window.quantumApp.account);
+                document.getElementById('encryptedYieldRate').textContent = newYieldRate;
+                
+                showNotification('✅ Yield parameters re-optimized!', 'success');
+            } catch (error) {
+                console.error('Re-optimization error:', error);
+                showNotification(`❌ Failed to re-optimize: ${error.message}`, 'error');
             }
         }
 
         // Cross-chain swap functions
         function generateSwapSecret() {
-            alert(`🚧 Cross-Chain Features - Coming Soon!\n\n🔐 Swap secret generation will be available when cross-chain functionality launches.\n\n✅ What's Available Now:\n• Confidential staking with FHE encryption\n• AI-powered yield optimization\n• Private fund withdrawals\n• Real blockchain transactions on Sepolia\n\n📅 Cross-chain features coming in the next update!\n\nFocus on the core confidential farming experience for now! 🔒`);
+            showNotification('🚧 Cross-Chain Features - Coming Soon! Swap secret generation will be available when cross-chain functionality launches.', 'info', 8000);
         }
 
         function initiateSwap() {
-            alert(`🚧 Cross-Chain Swaps - Coming Soon!\n\n🌉 We're working on bringing you seamless cross-chain functionality!\n\n✅ What's Coming:\n• Multi-chain asset swaps\n• Cross-chain yield farming\n• Universal asset management\n• Quantum-resistant bridge security\n\n🔒 Current Focus:\n• Core confidential farming (✅ Working)\n• FHE encryption (✅ Working)\n• AI yield optimization (✅ Working)\n\n📅 Cross-chain features will be available in the next update!\n\nStay tuned for the complete Quantum DeFi experience! 🚀`);
+            showNotification('🚧 Cross-Chain Swaps - Coming Soon! We\'re working on bringing you seamless cross-chain functionality!', 'info', 8000);
         }
 
         // Wallet connection functionality
@@ -1068,7 +1448,7 @@
             document.body.appendChild(notification);
 
             // Remove after 3 seconds
-        setTimeout(() => {
+            setTimeout(() => {
                 notification.remove();
             }, 3000);
         }
