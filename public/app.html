@@ -668,14 +668,24 @@
                 const encryptedTime = window.quantumApp.fheClient.encrypt(parseInt(time));
                 const encryptedLiquidity = window.quantumApp.fheClient.encrypt(parseInt(liquidity));
 
-                // Call the contract to store encrypted AI parameters
+                // First, set the encrypted AI parameters
+                const tx1 = await window.quantumApp.contracts.ConfidentialYieldProtocol.setEncryptedAIParams(
+                    encryptedRisk,
+                    encryptedTime,
+                    encryptedLiquidity
+                );
+                
+                alert(`📡 AI Parameters Submitted!\n\n🔗 Transaction Hash: ${tx1.hash}\n⏳ Setting encrypted parameters...`);
+                await tx1.wait();
+
+                // Then calculate the encrypted yield rate
                 const tx = await window.quantumApp.contracts.ConfidentialYieldProtocol.calculateEncryptedYieldRate(window.quantumApp.account);
-                
+
                 alert(`📡 Transaction Submitted!\n\n🔗 Transaction Hash: ${tx.hash}\n⏳ Waiting for blockchain confirmation...`);
-                
+
                 // Wait for transaction confirmation
                 const receipt = await tx.wait();
-                
+
                 // Calculate optimized APY based on parameters (for display)
                 const baseApy = 5;
                 const riskMultiplier = risk / 10;
@@ -766,12 +776,12 @@
 
                 // Call the ConfidentialYieldProtocol contract
                 const tx = await window.quantumApp.contracts.ConfidentialYieldProtocol.confidentialStake(encryptedAmount);
-                
+
                 alert(`📡 Staking Transaction Submitted!\n\n🔗 Transaction Hash: ${tx.hash}\n⏳ Waiting for blockchain confirmation...`);
-                
+
                 // Wait for transaction confirmation
                 const receipt = await tx.wait();
-                
+
                 // Show success with transaction details
                 alert(`🎉 Confidential Staking Complete!\n\n✅ Transaction Confirmed: ${receipt.transactionHash}\n✅ Gas Used: ${receipt.gasUsed.toString()}\n✅ Block Number: ${receipt.blockNumber}\n\n📊 Staking Details:\n• Amount: ${amount} (encrypted on blockchain)\n• Your funds are now earning yield privately\n• Balance is encrypted with FHE\n\n💡 Your confidential farming is now active!\n\n🔐 Next Steps:\n1. Monitor your encrypted yield growth\n2. Use optimizeYield() to maximize returns\n3. Withdraw anytime with confidentialWithdraw()`);
 
@@ -810,12 +820,12 @@
 
                 // Call the ConfidentialYieldProtocol contract
                 const tx = await window.quantumApp.contracts.ConfidentialYieldProtocol.confidentialWithdraw(encryptedAmount);
-                
+
                 alert(`📡 Withdrawal Transaction Submitted!\n\n🔗 Transaction Hash: ${tx.hash}\n⏳ Waiting for blockchain confirmation...`);
-                
+
                 // Wait for transaction confirmation
                 const receipt = await tx.wait();
-                
+
                 // Show success with transaction details
                 alert(`🎉 Confidential Withdrawal Complete!\n\n✅ Transaction Confirmed: ${receipt.transactionHash}\n✅ Gas Used: ${receipt.gasUsed.toString()}\n✅ Block Number: ${receipt.blockNumber}\n\n📊 Withdrawal Details:\n• Amount: ${amount} (encrypted on blockchain)\n• Funds withdrawn privately\n• Transaction details encrypted with FHE\n\n💡 Your withdrawal is complete and private!\n\n🔐 Next Steps:\n1. Check your wallet balance\n2. Continue staking for more yield\n3. Monitor your remaining encrypted balance`);
 
@@ -873,39 +883,30 @@
 
                 // Convert amount to wei (assuming 18 decimals for ETH)
                 const amountWei = window.quantumApp.provider.utils.parseEther(amount);
-                
+
                 // Convert chain names to chain IDs
                 const chainIdMap = {
                     'Sepolia': 11155111,
                     'Arbitrum Sepolia': 421614,
                     'Base Sepolia': 84532
                 };
-                
+
                 const targetChainId = chainIdMap[toChain];
                 if (!targetChainId) {
                     alert(`⚠️ Unsupported target chain: ${toChain}\n\nSupported chains: Sepolia, Arbitrum Sepolia, Base Sepolia`);
                     return;
                 }
 
-                // For now, we'll use ETH address (0x0000000000000000000000000000000000000000) as the token
-                // In a real implementation, you'd map the asset selection to actual token addresses
-                const tokenAddress = '0x0000000000000000000000000000000000000000'; // ETH
-
-                // Call the CrossChainBridge contract
-                const tx = await window.quantumApp.contracts.CrossChainBridge.initiateSwap(
-                    targetChainId,
-                    tokenAddress,
-                    amountWei,
-                    { value: amountWei } // Send ETH with the transaction
-                );
+                // NOTE: CrossChainBridge contract only supports ERC20 tokens, not ETH directly
+                // For demo purposes, we'll simulate the transaction
+                // In a real implementation, you'd need to:
+                // 1. Deploy ERC20 tokens for each chain
+                // 2. Create asset pools with those tokens
+                // 3. Use the actual token addresses
                 
-                alert(`📡 Swap Transaction Submitted!\n\n🔗 Transaction Hash: ${tx.hash}\n⏳ Waiting for blockchain confirmation...`);
+                alert(`⚠️ Cross-Chain Swap Limitation\n\nThe CrossChainBridge contract currently only supports ERC20 tokens, not native ETH.\n\nFor this demo, we'll simulate the transaction process:\n\n📊 Swap Details:\n• From: ${fromChain}\n• To: ${toChain}\n• Asset: ${asset}\n• Amount: ${amount}\n• Target Chain ID: ${targetChainId}\n\n💡 To enable real ETH swaps, the contract would need:\n• ERC20 wrapper tokens (WETH)\n• Asset pools with sufficient liquidity\n• Proper token approvals\n\n🔗 Simulated Transaction Hash: 0x${Math.random().toString(16).substr(2, 64)}`);
                 
-                // Wait for transaction confirmation
-                const receipt = await tx.wait();
-                
-                // Show success with transaction details
-                alert(`🎉 Cross-Chain Swap Initiated!\n\n✅ Transaction Confirmed: ${receipt.transactionHash}\n✅ Gas Used: ${receipt.gasUsed.toString()}\n✅ Block Number: ${receipt.blockNumber}\n\n📊 Swap Details:\n• From: ${fromChain}\n• To: ${toChain}\n• Asset: ${asset}\n• Amount: ${amount}\n• Target Chain ID: ${targetChainId}\n\n💡 Your cross-chain swap is now secured on the blockchain!\n\n🔐 Next Steps:\n1. Wait for cross-chain confirmation\n2. Use the swap secret to complete the transaction\n3. Monitor the transaction status`);
+                return; // Exit early since we can't actually call the contract with ETH
 
             } catch (error) {
                 console.error('Cross-chain swap error:', error);
