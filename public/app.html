@@ -343,7 +343,7 @@
                     <div class="glass-effect rounded-2xl p-8 border border-indigo-500/30">
                         <h3 class="text-2xl font-semibold text-white mb-6">🌐 Supported Networks</h3>
                         <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
-                            <div class="text-center p-4 bg-gray-800/30 rounded-lg">
+                            <div class="text-center p-4 bg-gray-800/30 rounded-lg network-status">
                                 <div class="text-white font-medium">Ethereum Sepolia</div>
                                 <div class="text-green-400 text-sm">✅ Ready</div>
                                 <div class="text-xs text-gray-400">USDC, WETH</div>
@@ -745,26 +745,44 @@
         }
 
         async function switchToQuantumNetwork() {
-            const quantumNetwork = {
-                chainId: '0x2A', // 42 in hex (for Sepolia)
-                chainName: 'Quantum DeFi Protocol',
-                nativeCurrency: {
-                    name: 'Ether',
-                    symbol: 'ETH',
-                    decimals: 18
-                },
-                rpcUrls: ['http://localhost:8545'], // Local Hardhat network
-                blockExplorerUrls: ['https://sepolia.etherscan.io']
-            };
-
+            // Get current network and switch to appropriate testnet
             try {
-                await window.ethereum.request({
-                    method: 'wallet_addEthereumChain',
-                    params: [quantumNetwork]
-                });
+                const network = await window.ethereum.request({ method: 'eth_chainId' });
+                const chainId = parseInt(network, 16);
+                
+                let targetNetwork;
+                
+                // Switch to Base Sepolia (where we have the complete protocol)
+                if (chainId !== 84532) { // Base Sepolia
+                    targetNetwork = {
+                        chainId: '0x14A3C', // 84532 in hex (Base Sepolia)
+                        chainName: 'Base Sepolia',
+                        nativeCurrency: {
+                            name: 'Ether',
+                            symbol: 'ETH',
+                            decimals: 18
+                        },
+                        rpcUrls: ['https://sepolia.base.org'],
+                        blockExplorerUrls: ['https://sepolia.basescan.org']
+                    };
+                }
+                
+                if (targetNetwork) {
+                    try {
+                        await window.ethereum.request({
+                            method: 'wallet_addEthereumChain',
+                            params: [targetNetwork]
+                        });
+                    } catch (error) {
+                        // Try to switch if already added
+                        await window.ethereum.request({
+                            method: 'wallet_switchEthereumChain',
+                            params: [{ chainId: targetNetwork.chainId }]
+                        });
+                    }
+                }
             } catch (error) {
-                // Network might already be added
-                console.log('Network switch:', error.message);
+                console.log('Network switch error:', error.message);
             }
         }
 
@@ -772,22 +790,65 @@
             // Add blockchain-specific functionality here
             console.log('Blockchain features enabled for account:', currentAccount);
         }
-        
+
         function updateNetworkStatus(clientInfo) {
             // Update network status display with real contract information
             const networkStatus = document.querySelector('.network-status');
             if (networkStatus && clientInfo.contracts) {
+                const networkConfig = window.quantumClient.networkConfigs[clientInfo.network];
                 let statusHtml = `
                     <div class="text-center p-4 bg-gray-800/30 rounded-lg border border-green-500/30">
-                        <div class="text-white font-medium">${clientInfo.network.toUpperCase()}</div>
-                        <div class="text-green-400 text-sm">✅ Connected</div>
+                        <div class="text-white font-medium">${networkConfig ? networkConfig.name : clientInfo.network.toUpperCase()}</div>
+                        <div class="text-green-400 text-sm">✅ Connected to Testnet</div>
                         <div class="text-xs text-gray-400 mt-2">
-                            <div>CrossChainBridge: ${clientInfo.contracts.CrossChainBridge ? clientInfo.contracts.CrossChainBridge.slice(0, 10) + '...' : 'Not deployed'}</div>
-                            <div>ConfidentialYield: ${clientInfo.contracts.ConfidentialYieldProtocol ? clientInfo.contracts.ConfidentialYieldProtocol.slice(0, 10) + '...' : 'Not deployed'}</div>
+                            <div>CrossChainBridge: ${clientInfo.contracts.CrossChainBridge ? 
+                                `<a href="${networkConfig?.blockExplorer}/address/${clientInfo.contracts.CrossChainBridge}" target="_blank" class="text-blue-400 hover:text-blue-300">${clientInfo.contracts.CrossChainBridge.slice(0, 10)}...</a>` : 
+                                'Not deployed'}</div>
+                            <div>ConfidentialYield: ${clientInfo.contracts.ConfidentialYieldProtocol && clientInfo.contracts.ConfidentialYieldProtocol !== "0x0000000000000000000000000000000000000000" ? 
+                                `<a href="${networkConfig?.blockExplorer}/address/${clientInfo.contracts.ConfidentialYieldProtocol}" target="_blank" class="text-blue-400 hover:text-blue-300">${clientInfo.contracts.ConfidentialYieldProtocol.slice(0, 10)}...</a>` : 
+                                'Not deployed'}</div>
+                        </div>
+                        <div class="mt-2">
+                            <button onclick="switchToBestNetwork()" class="px-3 py-1 bg-blue-600 hover:bg-blue-700 rounded text-xs text-white">
+                                Switch to Base Sepolia (Complete Protocol)
+                            </button>
                         </div>
                     </div>
                 `;
                 networkStatus.innerHTML = statusHtml;
+            }
+        }
+        
+        async function switchToBestNetwork() {
+            // Switch to Base Sepolia where we have the complete protocol
+            const baseSepoliaNetwork = {
+                chainId: '0x14A3C', // 84532 in hex (Base Sepolia)
+                chainName: 'Base Sepolia',
+                nativeCurrency: {
+                    name: 'Ether',
+                    symbol: 'ETH',
+                    decimals: 18
+                },
+                rpcUrls: ['https://sepolia.base.org'],
+                blockExplorerUrls: ['https://sepolia.basescan.org']
+            };
+            
+            try {
+                await window.ethereum.request({
+                    method: 'wallet_addEthereumChain',
+                    params: [baseSepoliaNetwork]
+                });
+                showNotification('Switched to Base Sepolia! Full protocol available.', 'success');
+            } catch (error) {
+                try {
+                    await window.ethereum.request({
+                        method: 'wallet_switchEthereumChain',
+                        params: [{ chainId: baseSepoliaNetwork.chainId }]
+                    });
+                    showNotification('Switched to Base Sepolia! Full protocol available.', 'success');
+                } catch (switchError) {
+                    showNotification('Failed to switch network. Please add Base Sepolia manually.', 'error');
+                }
             }
         }
 
@@ -863,7 +924,7 @@
             document.title = `Quantum DeFi Protocol - Full App - ${now}`;
         }, 1000);
     </script>
-    
+
     <!-- Contract Client Library -->
     <script>
         // Quantum DeFi Protocol - Contract Client Library
@@ -873,7 +934,7 @@
                 this.signer = null;
                 this.contracts = {};
                 this.currentNetwork = null;
-                
+
                 // Contract addresses for each network
                 this.contractAddresses = {
                     sepolia: {
@@ -894,28 +955,50 @@
                         ConfidentialYieldProtocol: "0x1c63Ad304B21b0923e0CCe869a747b6dc4a90D0a"
                     }
                 };
+                
+                // Network configurations with correct RPC URLs
+                this.networkConfigs = {
+                    sepolia: {
+                        chainId: 11155111,
+                        rpcUrl: "https://sepolia.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161",
+                        blockExplorer: "https://sepolia.etherscan.io",
+                        name: "Ethereum Sepolia"
+                    },
+                    arbitrumSepolia: {
+                        chainId: 421614,
+                        rpcUrl: "https://sepolia-rollup.arbitrum.io/rpc",
+                        blockExplorer: "https://sepolia.arbiscan.io",
+                        name: "Arbitrum Sepolia"
+                    },
+                    baseSepolia: {
+                        chainId: 84532,
+                        rpcUrl: "https://sepolia.base.org",
+                        blockExplorer: "https://sepolia.basescan.org",
+                        name: "Base Sepolia"
+                    }
+                };
             }
-            
+
             // Initialize connection to MetaMask
             async initialize() {
                 if (typeof window.ethereum === 'undefined') {
                     throw new Error('MetaMask not detected. Please install MetaMask.');
                 }
-                
+
                 this.provider = new ethers.providers.Web3Provider(window.ethereum);
                 this.signer = this.provider.getSigner();
-                
+
                 // Get current network
                 const network = await this.provider.getNetwork();
                 this.currentNetwork = this.getNetworkName(network.chainId);
-                
+
                 return {
                     address: await this.signer.getAddress(),
                     network: this.currentNetwork,
                     contracts: this.contractAddresses[this.currentNetwork] || {}
                 };
             }
-            
+
             // Get network name from chain ID
             getNetworkName(chainId) {
                 const networks = {
@@ -925,7 +1008,7 @@
                 };
                 return networks[chainId] || 'unknown';
             }
-            
+
             // Get current network info
             async getNetworkInfo() {
                 const network = await this.provider.getNetwork();
@@ -936,7 +1019,7 @@
                 };
             }
         }
-        
+
         // Global client instance
         window.quantumClient = new QuantumDeFiClient();
     </script>
