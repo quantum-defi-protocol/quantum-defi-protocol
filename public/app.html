@@ -1409,8 +1409,18 @@
         }
 
         async function reoptimizeYield() {
+            console.log('🔍 Debug: reoptimizeYield called');
+            console.log('🔍 Debug: window.quantumApp:', window.quantumApp);
+            console.log('🔍 Debug: contracts:', window.quantumApp?.contracts);
+            console.log('🔍 Debug: ConfidentialYieldProtocol:', window.quantumApp?.contracts?.ConfidentialYieldProtocol);
+            
             if (!window.quantumApp || !window.quantumApp.isWalletConnected) {
                 showNotification('⚠️ Please connect your wallet first', 'warning');
+                return;
+            }
+
+            if (!window.quantumApp.contracts || !window.quantumApp.contracts.ConfidentialYieldProtocol) {
+                showNotification('⚠️ ConfidentialYieldProtocol contract not loaded. Please refresh and reconnect wallet.', 'error');
                 return;
             }
 
@@ -1491,8 +1501,18 @@
         }
 
         async function executeAIOptimization() {
+            console.log('🔍 Debug: executeAIOptimization called');
+            console.log('🔍 Debug: window.quantumApp:', window.quantumApp);
+            console.log('🔍 Debug: contracts:', window.quantumApp?.contracts);
+            console.log('🔍 Debug: ConfidentialYieldProtocol:', window.quantumApp?.contracts?.ConfidentialYieldProtocol);
+            
             if (!window.quantumApp || !window.quantumApp.isWalletConnected) {
                 showNotification('⚠️ Please connect your wallet first', 'warning');
+                return;
+            }
+
+            if (!window.quantumApp.contracts || !window.quantumApp.contracts.ConfidentialYieldProtocol) {
+                showNotification('⚠️ ConfidentialYieldProtocol contract not loaded. Please refresh and reconnect wallet.', 'error');
                 return;
             }
 
@@ -2048,6 +2068,7 @@
                 }
 
                 for (const [contractName, address] of Object.entries(networkAddresses)) {
+                    console.log(`🔍 Debug: Processing contract ${contractName} with address ${address}`);
                     if (address && address !== "0x0000000000000000000000000000000000000000" && this.abis[contractName]) {
                         try {
                             this.contracts[contractName] = new ethers.Contract(
@@ -2056,9 +2077,12 @@
                                 this.signer
                             );
                             console.log(`✅ ${contractName} contract initialized at ${address}`);
+                            console.log(`🔍 Debug: ${contractName} ABI:`, this.abis[contractName]);
                         } catch (error) {
                             console.error(`❌ Failed to initialize ${contractName}:`, error);
                         }
+                    } else {
+                        console.warn(`⚠️ Skipping ${contractName}: address=${address}, hasABI=${!!this.abis[contractName]}`);
                     }
                 }
             }
