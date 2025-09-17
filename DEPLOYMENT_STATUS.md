@@ -17,11 +17,6 @@
   - Required: Sepolia ETH from faucet
 
 ### ⏳ Pending
-- [ ] **Polygon Mumbai Deployment**
-  - Status: Ready to deploy
-  - Command: `npx hardhat run scripts/deploy-testnet-real-assets.js --network mumbai`
-  - Required: Mumbai MATIC from faucet
-
 - [ ] **Arbitrum Sepolia Deployment**
   - Status: Ready to deploy
   - Command: `npx hardhat run scripts/deploy-testnet-real-assets.js --network arbitrumSepolia`
@@ -32,10 +27,14 @@
   - Command: `npx hardhat run scripts/deploy-testnet-real-assets.js --network baseSepolia`
   - Required: Base Sepolia ETH from faucet
 
+### 🚧 Coming Soon
+- [ ] **Polygon Mumbai Deployment**
+  - Status: Coming Soon
+  - Note: Will be deployed in next phase
+
 - [ ] **Linea Sepolia Deployment**
-  - Status: Ready to deploy
-  - Command: `npx hardhat run scripts/deploy-linea-sepolia.js --network lineaSepolia`
-  - Required: Linea Sepolia ETH from faucet
+  - Status: Coming Soon
+  - Note: Will be deployed in next phase
 
 - [ ] **Contract Verification**
   - Status: Pending deployment
@@ -59,14 +58,14 @@
 
 ### 2. Deploy Contracts
 ```bash
-# Start with Sepolia
+# Phase 1: Deploy to primary networks
 npx hardhat run scripts/deploy-testnet-real-assets.js --network sepolia
-
-# Then deploy to other networks
-npx hardhat run scripts/deploy-testnet-real-assets.js --network mumbai
 npx hardhat run scripts/deploy-testnet-real-assets.js --network arbitrumSepolia
 npx hardhat run scripts/deploy-testnet-real-assets.js --network baseSepolia
-npx hardhat run scripts/deploy-linea-sepolia.js --network lineaSepolia
+
+# Phase 2: Coming Soon
+# npx hardhat run scripts/deploy-testnet-real-assets.js --network mumbai
+# npx hardhat run scripts/deploy-linea-sepolia.js --network lineaSepolia
 ```
 
 ### 3. Verify Contracts
@@ -83,7 +82,7 @@ Replace mock addresses in `config/contracts.js` with deployed addresses.
 
 **Estimated Time**: 30-60 minutes per network (including faucet requests).
 
-**Total Networks**: 5 testnets ready for deployment.
+**Total Networks**: 3 testnets ready for deployment (Phase 1).
 
 ---
 

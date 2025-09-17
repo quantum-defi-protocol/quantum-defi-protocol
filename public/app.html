@@ -52,7 +52,8 @@
                     <span class="px-3 py-1 bg-blue-500/20 text-blue-400 rounded-full text-sm font-medium">
                         🤖 AI Powered
                     </span>
-                    <button onclick="connectWallet()" id="walletButton" class="px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 rounded-lg font-semibold text-white transition-all duration-300">
+                    <button onclick="connectWallet()" id="walletButton"
+                        class="px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 rounded-lg font-semibold text-white transition-all duration-300">
                         🦊 Connect Wallet
                     </button>
                     <a href="README.html"
@@ -291,12 +292,12 @@
                                 <label class="block text-sm font-medium text-gray-300">From Chain</label>
                                 <select id="fromChain"
                                     class="w-full px-4 py-3 bg-gray-800/50 border border-gray-600 rounded-lg text-white focus:border-blue-500 focus:outline-none">
-                                    <option value="1">Ethereum</option>
-                                    <option value="137">Polygon</option>
-                                    <option value="42161">Arbitrum</option>
-                                    <option value="8453">Base</option>
-                                    <option value="59144">Linea</option>
-                                    <option value="solana">Solana</option>
+                                    <option value="11155111">Ethereum Sepolia</option>
+                                    <option value="421614">Arbitrum Sepolia</option>
+                                    <option value="84532">Base Sepolia</option>
+                                    <option value="80001" disabled>Polygon Mumbai (Coming Soon)</option>
+                                    <option value="59141" disabled>Linea Sepolia (Coming Soon)</option>
+                                    <option value="solana" disabled>Solana Testnet (Coming Soon)</option>
                                 </select>
 
                                 <label class="block text-sm font-medium text-gray-300">Asset</label>
@@ -317,12 +318,12 @@
                                 <label class="block text-sm font-medium text-gray-300">To Chain</label>
                                 <select id="toChain"
                                     class="w-full px-4 py-3 bg-gray-800/50 border border-gray-600 rounded-lg text-white focus:border-blue-500 focus:outline-none">
-                                    <option value="137">Polygon</option>
-                                    <option value="1">Ethereum</option>
-                                    <option value="42161">Arbitrum</option>
-                                    <option value="8453">Base</option>
-                                    <option value="59144">Linea</option>
-                                    <option value="solana">Solana</option>
+                                    <option value="421614">Arbitrum Sepolia</option>
+                                    <option value="11155111">Ethereum Sepolia</option>
+                                    <option value="84532">Base Sepolia</option>
+                                    <option value="80001" disabled>Polygon Mumbai (Coming Soon)</option>
+                                    <option value="59141" disabled>Linea Sepolia (Coming Soon)</option>
+                                    <option value="solana" disabled>Solana Testnet (Coming Soon)</option>
                                 </select>
 
                                 <button onclick="generateSwapSecret()"
@@ -347,11 +348,6 @@
                                 <div class="text-xs text-gray-400">USDC, WETH</div>
                             </div>
                             <div class="text-center p-4 bg-gray-800/30 rounded-lg">
-                                <div class="text-white font-medium">Polygon Mumbai</div>
-                                <div class="text-green-400 text-sm">✅ Ready</div>
-                                <div class="text-xs text-gray-400">USDC, WMATIC</div>
-                            </div>
-                            <div class="text-center p-4 bg-gray-800/30 rounded-lg">
                                 <div class="text-white font-medium">Arbitrum Sepolia</div>
                                 <div class="text-green-400 text-sm">✅ Ready</div>
                                 <div class="text-xs text-gray-400">USDC, WETH</div>
@@ -361,14 +357,19 @@
                                 <div class="text-green-400 text-sm">✅ Ready</div>
                                 <div class="text-xs text-gray-400">USDC, WETH</div>
                             </div>
-                            <div class="text-center p-4 bg-gray-800/30 rounded-lg">
+                            <div class="text-center p-4 bg-gray-800/30 rounded-lg border border-yellow-500/30">
+                                <div class="text-white font-medium">Polygon Mumbai</div>
+                                <div class="text-yellow-400 text-sm">🚧 Coming Soon</div>
+                                <div class="text-xs text-gray-400">USDC, WMATIC</div>
+                            </div>
+                            <div class="text-center p-4 bg-gray-800/30 rounded-lg border border-yellow-500/30">
                                 <div class="text-white font-medium">Linea Sepolia</div>
-                                <div class="text-green-400 text-sm">✅ Ready</div>
+                                <div class="text-yellow-400 text-sm">🚧 Coming Soon</div>
                                 <div class="text-xs text-gray-400">USDC, WETH</div>
                             </div>
-                            <div class="text-center p-4 bg-gray-800/30 rounded-lg">
+                            <div class="text-center p-4 bg-gray-800/30 rounded-lg border border-yellow-500/30">
                                 <div class="text-white font-medium">Solana Testnet</div>
-                                <div class="text-green-400 text-sm">✅ Ready</div>
+                                <div class="text-yellow-400 text-sm">🚧 Coming Soon</div>
                                 <div class="text-xs text-gray-400">USDC, SOL</div>
                             </div>
                         </div>
@@ -703,25 +704,25 @@
                     const accounts = await window.ethereum.request({
                         method: 'eth_requestAccounts'
                     });
-                    
+
                     if (accounts.length > 0) {
                         currentAccount = accounts[0];
                         walletConnected = true;
-                        
+
                         // Update UI
                         const walletButton = document.getElementById('walletButton');
                         walletButton.innerHTML = `🦊 ${currentAccount.slice(0, 6)}...${currentAccount.slice(-4)}`;
                         walletButton.className = 'px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 rounded-lg font-semibold text-white transition-all duration-300';
-                        
+
                         // Add network switching functionality
                         await switchToQuantumNetwork();
-                        
+
                         // Show success message
                         showNotification('Wallet connected successfully!', 'success');
-                        
+
                         // Enable blockchain features
                         enableBlockchainFeatures();
-                        
+
                     } else {
                         showNotification('No accounts found. Please unlock your wallet.', 'error');
                     }
@@ -766,15 +767,14 @@
         function showNotification(message, type = 'info') {
             // Create notification element
             const notification = document.createElement('div');
-            notification.className = `fixed top-4 right-4 px-6 py-3 rounded-lg text-white font-medium z-50 transition-all duration-300 ${
-                type === 'success' ? 'bg-green-600' : 
-                type === 'error' ? 'bg-red-600' : 
-                'bg-blue-600'
-            }`;
+            notification.className = `fixed top-4 right-4 px-6 py-3 rounded-lg text-white font-medium z-50 transition-all duration-300 ${type === 'success' ? 'bg-green-600' :
+                    type === 'error' ? 'bg-red-600' :
+                        'bg-blue-600'
+                }`;
             notification.textContent = message;
-            
+
             document.body.appendChild(notification);
-            
+
             // Remove after 3 seconds
             setTimeout(() => {
                 notification.remove();
@@ -788,15 +788,15 @@
                     const accounts = await window.ethereum.request({
                         method: 'eth_accounts'
                     });
-                    
+
                     if (accounts.length > 0) {
                         currentAccount = accounts[0];
                         walletConnected = true;
-                        
+
                         const walletButton = document.getElementById('walletButton');
                         walletButton.innerHTML = `🦊 ${currentAccount.slice(0, 6)}...${currentAccount.slice(-4)}`;
                         walletButton.className = 'px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 rounded-lg font-semibold text-white transition-all duration-300';
-                        
+
                         enableBlockchainFeatures();
                     }
                 } catch (error) {
