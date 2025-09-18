@@ -1090,13 +1090,13 @@
                 // Call the ConfidentialYieldProtocol contract
                 const tx = await window.quantumApp.contracts.ConfidentialYieldProtocol.confidentialStake(encryptedAmount);
 
-                showNotification(`📡 Staking Transaction Submitted! Hash: ${tx.hash.substring(0, 10)}...`, 'info');
+                showNotification(`📡 Staking Transaction Submitted! Hash: ${createEtherscanLink(tx.hash, window.quantumApp.currentNetwork)}`, 'info');
 
                 // Wait for transaction confirmation
                 const receipt = await tx.wait();
 
                 // Show success with transaction details
-                showNotification(`🎉 ${selectedStakeAsset} Confidential Staking Complete! Amount: ${amount} (encrypted). Your confidential farming is now active!`, 'success');
+                showNotification(`🎉 ${selectedStakeAsset} Confidential Staking Complete! Amount: ${amount} (encrypted). Transaction: ${createEtherscanLink(tx.hash, window.quantumApp.currentNetwork)}. Your confidential farming is now active!`, 'success');
 
             } catch (error) {
                 console.error('Confidential staking error:', error);
@@ -1134,13 +1134,13 @@
                 // Call the ConfidentialYieldProtocol contract
                 const tx = await window.quantumApp.contracts.ConfidentialYieldProtocol.confidentialWithdraw(encryptedAmount);
 
-                showNotification(`📡 Withdrawal Request Submitted! Hash: ${tx.hash.substring(0, 10)}... Processing: 3 days`, 'info');
+                showNotification(`📡 Withdrawal Request Submitted! Hash: ${createEtherscanLink(tx.hash, window.quantumApp.currentNetwork)} Processing: 3 days`, 'info');
 
                 // Wait for transaction confirmation
                 const receipt = await tx.wait();
 
                 // Show success with 3-day processing info
-                showNotification(`🎉 Withdrawal Request Complete! Amount: ${amount} (encrypted). Processing time: 3 days for security.`, 'success');
+                showNotification(`🎉 Withdrawal Request Complete! Amount: ${amount} (encrypted). Transaction: ${createEtherscanLink(tx.hash, window.quantumApp.currentNetwork)}. Processing time: 3 days for security.`, 'success');
 
             } catch (error) {
                 console.error('Confidential withdrawal error:', error);
@@ -1211,6 +1211,19 @@
                     document.getElementById('withdrawalAmount').focus();
                 }, 100);
             });
+        }
+
+        // Helper function to create Etherscan links
+        function createEtherscanLink(hash, network = 'sepolia') {
+            const networkMap = {
+                'sepolia': 'sepolia.etherscan.io',
+                'arbitrumSepolia': 'sepolia.arbiscan.io',
+                'baseSepolia': 'sepolia.basescan.org'
+            };
+            
+            const explorerUrl = networkMap[network] || networkMap['sepolia'];
+            const shortHash = hash.substring(0, 10) + '...';
+            return `<a href="https://${explorerUrl}/tx/${hash}" target="_blank" class="text-blue-400 hover:text-blue-300 underline">${shortHash}</a>`;
         }
 
         // Notification System
@@ -1502,12 +1515,12 @@
                 const tx1 = await window.quantumApp.contracts.ConfidentialYieldProtocol.setEncryptedAIParams(
                     encryptedRisk, encryptedTime, encryptedLiquidity
                 );
-                showNotification(`📡 AI Parameters Updated! Transaction: ${tx1.hash.substring(0, 10)}...`, 'info');
+                showNotification(`📡 AI Parameters Updated! Transaction: ${createEtherscanLink(tx1.hash, window.quantumApp.currentNetwork)}`, 'info');
                 await tx1.wait();
 
                 // Calculate new yield rate
                 const tx = await window.quantumApp.contracts.ConfidentialYieldProtocol.calculateEncryptedYieldRate(window.quantumApp.account);
-                showNotification(`📡 Calculating New Yield Rate... Hash: ${tx.hash.substring(0, 10)}...`, 'info');
+                showNotification(`📡 Calculating New Yield Rate... Hash: ${createEtherscanLink(tx.hash, window.quantumApp.currentNetwork)}`, 'info');
                 const receipt = await tx.wait();
 
                 // Calculate optimized APY based on parameters
@@ -1578,13 +1591,13 @@
                     encryptedLiquidity
                 );
 
-                showNotification(`📡 AI Parameters Submitted! Transaction: ${tx1.hash.substring(0, 10)}...`, 'info');
+                showNotification(`📡 AI Parameters Submitted! Transaction: ${createEtherscanLink(tx1.hash, window.quantumApp.currentNetwork)}`, 'info');
                 await tx1.wait();
 
                 // Then calculate the encrypted yield rate
                 const tx = await window.quantumApp.contracts.ConfidentialYieldProtocol.calculateEncryptedYieldRate(window.quantumApp.account);
 
-                showNotification(`📡 Transaction Submitted! Hash: ${tx.hash.substring(0, 10)}...`, 'info');
+                showNotification(`📡 Transaction Submitted! Hash: ${createEtherscanLink(tx.hash, window.quantumApp.currentNetwork)}`, 'info');
 
                 // Wait for transaction confirmation
                 const receipt = await tx.wait();
