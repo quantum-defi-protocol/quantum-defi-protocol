@@ -524,7 +524,8 @@
                                 <div id="encryptedBalanceDisplay" class="space-y-3">
                                     <div class="p-4 bg-gray-800/30 rounded-lg border border-gray-600">
                                         <div class="text-gray-400 text-sm">Encrypted Balance</div>
-                                        <div id="encryptedBalance" class="text-white font-mono text-sm break-all max-h-20 overflow-y-auto">
+                                        <div id="encryptedBalance"
+                                            class="text-white font-mono text-sm break-all max-h-20 overflow-y-auto">
                                             Not connected
                                         </div>
                                     </div>
@@ -538,7 +539,8 @@
 
                                     <div class="p-4 bg-gray-800/30 rounded-lg border border-gray-600">
                                         <div class="text-gray-400 text-sm">Total Encrypted Yield</div>
-                                        <div id="totalEncryptedYield" class="text-blue-400 font-mono text-sm break-all max-h-20 overflow-y-auto">
+                                        <div id="totalEncryptedYield"
+                                            class="text-blue-400 font-mono text-sm break-all max-h-20 overflow-y-auto">
                                             Not calculated
                                         </div>
                                     </div>
@@ -1670,6 +1672,14 @@
                                 throw new Error('Ethers library failed to load. Please refresh the page.');
                             }
 
+                            // Ensure quantumApp is initialized
+                            if (!window.quantumApp) {
+                                if (typeof QuantumDeFiClient === 'undefined') {
+                                    throw new Error('QuantumDeFiClient class not loaded. Please refresh the page.');
+                                }
+                                window.quantumApp = new QuantumDeFiClient();
+                            }
+                            
                             const clientInfo = await window.quantumApp.initialize();
                             console.log('Quantum DeFi Client initialized:', clientInfo);
 
@@ -1861,7 +1871,28 @@
                         walletButton.innerHTML = `🔌 Disconnect (${currentAccount.slice(0, 6)}...${currentAccount.slice(-4)})`;
                         walletButton.className = 'px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 rounded-lg font-semibold text-white transition-all duration-300';
 
-                        enableBlockchainFeatures();
+                        // Initialize quantumApp if not already done
+                        if (!window.quantumApp) {
+                            if (typeof QuantumDeFiClient === 'undefined') {
+                                console.error('QuantumDeFiClient class not loaded on page load');
+                                return;
+                            }
+                            window.quantumApp = new QuantumDeFiClient();
+                        }
+                        
+                        try {
+                            const clientInfo = await window.quantumApp.initialize();
+                            console.log('Quantum DeFi Client initialized on page load:', clientInfo);
+                            
+                            // Update quantumApp properties
+                            window.quantumApp.account = currentAccount;
+                            window.quantumApp.isWalletConnected = true;
+                            
+                            enableBlockchainFeatures();
+                        } catch (error) {
+                            console.error('Error initializing Quantum DeFi client on page load:', error);
+                            showNotification('Wallet connected, but contract integration failed: ' + error.message, 'warning');
+                        }
                     }
                 } catch (error) {
                     console.error('Error checking wallet connection:', error);
@@ -1874,18 +1905,18 @@
                 walletConnected = false;
                 currentAccount = null;
                 window.quantumApp = null;
-                
+
                 const walletButton = document.getElementById('walletButton');
                 walletButton.innerHTML = '🦊 Connect Wallet';
                 walletButton.className = 'px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 rounded-lg font-semibold text-white transition-all duration-300';
-                
+
                 showNotification('🔌 Wallet disconnected successfully', 'success');
-                
+
                 // Clear any displayed data
                 document.getElementById('encryptedBalance').textContent = 'Not connected';
                 document.getElementById('totalEncryptedYield').textContent = 'Not calculated';
                 document.getElementById('encryptedYieldRate').textContent = 'Not calculated';
-                
+
                 const riskParamsDiv = document.getElementById('riskParams');
                 if (riskParamsDiv) {
                     riskParamsDiv.innerHTML = `
@@ -1903,7 +1934,7 @@
                         </div>
                     `;
                 }
-                
+
             } catch (error) {
                 console.error('Disconnect error:', error);
                 showNotification('❌ Error disconnecting wallet', 'error');
