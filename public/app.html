@@ -125,7 +125,7 @@
 
                 <div class="space-y-4">
                     <div>
-                        <label class="text-gray-300 text-sm mb-2 block">
+                        <label for="modalRiskTolerance" class="text-gray-300 text-sm mb-2 block">
                             Risk Tolerance: <span id="modalRiskValue" class="text-white font-medium">50%</span>
                         </label>
                         <input type="range" id="modalRiskTolerance" min="0" max="100" value="50"
@@ -137,7 +137,7 @@
                     </div>
 
                     <div>
-                        <label class="text-gray-300 text-sm mb-2 block">
+                        <label for="modalTimeHorizon" class="text-gray-300 text-sm mb-2 block">
                             Time Horizon: <span id="modalTimeValue" class="text-white font-medium">30 days</span>
                         </label>
                         <input type="range" id="modalTimeHorizon" min="1" max="365" value="30"
@@ -149,7 +149,7 @@
                     </div>
 
                     <div>
-                        <label class="text-gray-300 text-sm mb-2 block">
+                        <label for="modalLiquidityPreference" class="text-gray-300 text-sm mb-2 block">
                             Liquidity Preference: <span id="modalLiquidityValue"
                                 class="text-white font-medium">70%</span>
                         </label>
@@ -303,6 +303,7 @@
                                 <h4 class="text-lg font-semibold text-white">Encrypt Your Stake Amount</h4>
 
                                 <!-- Asset Selection Dropdown -->
+                                <label for="assetSelect" class="block text-sm font-medium text-gray-300 mb-2">Select Asset to Stake</label>
                                 <select id="assetSelect" onchange="selectAssetFromDropdown()"
                                     class="w-full px-4 py-3 bg-gray-800/50 border border-gray-600 rounded-lg text-white focus:border-purple-500 focus:outline-none transition-colors">
                                     <option value="">🔷 Select Asset to Stake</option>
@@ -312,6 +313,7 @@
                                     <option value="LINK">🔗 LINK (Chainlink)</option>
                                 </select>
 
+                                <label for="stakeAmount" class="block text-sm font-medium text-gray-300 mb-2">Stake Amount</label>
                                 <input type="number" id="stakeAmount" placeholder="Enter amount to stake"
                                     class="w-full px-4 py-3 bg-gray-800/50 border border-gray-600 rounded-lg text-white focus:border-purple-500 focus:outline-none">
 
@@ -821,6 +823,188 @@
     </div>
 
     <script>
+        // Quantum DeFi Protocol - Contract Client Library
+        class QuantumDeFiClient {
+            constructor() {
+                this.provider = null;
+                this.signer = null;
+                this.contracts = {};
+                this.currentNetwork = null;
+                this.fheClient = null;
+                this.account = null;
+                this.isWalletConnected = false;
+
+                // Contract ABIs (simplified for demo)
+                this.abis = {
+                    MockFHE: [
+                        "function encrypt(uint256 value) external pure returns (bytes32)",
+                        "function decrypt(bytes32 encryptedValue) external pure returns (uint256)",
+                        "function add(bytes32 a, bytes32 b) external pure returns (bytes32)",
+                        "function multiply(bytes32 a, uint256 scalar) external pure returns (bytes32)"
+                    ],
+                    CrossChainBridge: [
+                        "function initiateSwap(uint256 targetChainId, address token, uint256 amount) external payable",
+                        "function completeSwap(bytes32 swapId, bytes32 secret) external",
+                        "function getSwapRequest(bytes32 swapId) external view returns (tuple(address initiator, uint256 targetChainId, address token, uint256 amount, uint256 timestamp, bool completed, bool expired))",
+                        "function createAssetPool(address token, uint256 initialLiquidity) external",
+                        "function getTokenLiquidityInfo(address token) external view returns (uint256 totalLiquidity, uint256 availableLiquidity)",
+                        "function getSupportedChains() external view returns (tuple(uint256 chainId, string name, address bridgeContract, bool isActive)[])"
+                    ],
+                    UniversalAssetManager: [
+                        "function registerAsset(address token, uint256 chainId, string memory symbol, uint8 decimals, uint256 totalSupply, bool isNative) external",
+                        "function getRegisteredAssets() external view returns (tuple(address token, uint256 chainId, string symbol, uint8 decimals, uint256 totalSupply, uint256 circulatingSupply, bool isActive, bool isNative)[])",
+                        "function getUserCrossChainBalance(address user, address token) external view returns (uint256 totalBalance, uint256 lockedBalance)",
+                        "function crossChainBridge() external view returns (address)",
+                        "function yieldOptimizer() external view returns (address)"
+                    ],
+                    ConfidentialYieldProtocol: [
+                        "function confidentialStake(bytes32 encryptedAmount) external",
+                        "function confidentialWithdraw(bytes32 encryptedAmount) external",
+                        "function setEncryptedAIParams(bytes32 riskTolerance, bytes32 timeHorizon, bytes32 liquidityPreference) external",
+                        "function getEncryptedBalance(address user) external view returns (bytes32)",
+                        "function getEncryptedMarketData() external view returns (bytes32 volatility, bytes32 trend, bytes32 optimalRate)",
+                        "function calculateEncryptedYield(address user) external returns (bytes32)",
+                        "function calculateEncryptedYieldRate(address user) external returns (bytes32)",
+                        "function getEncryptedTotalYield(address user) external view returns (bytes32)",
+                        "function getEncryptedAIParams(address user) external view returns (bytes32 riskTolerance, bytes32 timeHorizon, bytes32 liquidityPreference)",
+                        "function owner() external view returns (address)",
+                        "function fhe() external view returns (address)"
+                    ]
+                };
+
+                // Contract addresses for each network
+                this.contractAddresses = {
+                    sepolia: {
+                        MockFHE: '0x7D6D0C3d4E3d8f8d4b3e8c9d2a1f0e9d8c7b6a5',
+                        CrossChainBridge: '0x5c4E1B4d3e2f1a0b9c8d7e6f5a4b3c2d1e0f9a8',
+                        UniversalAssetManager: '0x8d5e2f1a0b9c8d7e6f5a4b3c2d1e0f9a8b7c6d5',
+                        ConfidentialYieldProtocol: '0x9e6f3a2b1c0d9e8f7a6b5c4d3e2f1a0b9c8d7e6'
+                    },
+                    arbitrumSepolia: {
+                        MockFHE: '0x7D6D0C3d4E3d8f8d4b3e8c9d2a1f0e9d8c7b6a5',
+                        CrossChainBridge: '0x5c4E1B4d3e2f1a0b9c8d7e6f5a4b3c2d1e0f9a8',
+                        UniversalAssetManager: '0x8d5e2f1a0b9c8d7e6f5a4b3c2d1e0f9a8b7c6d5',
+                        ConfidentialYieldProtocol: '0x9e6f3a2b1c0d9e8f7a6b5c4d3e2f1a0b9c8d7e6'
+                    },
+                    baseSepolia: {
+                        MockFHE: '0x7D6D0C3d4E3d8f8d4b3e8c9d2a1f0e9d8c7b6a5',
+                        CrossChainBridge: '0x5c4E1B4d3e2f1a0b9c8d7e6f5a4b3c2d1e0f9a8',
+                        UniversalAssetManager: '0x8d5e2f1a0b9c8d7e6f5a4b3c2d1e0f9a8b7c6d5',
+                        ConfidentialYieldProtocol: '0x9e6f3a2b1c0d9e8f7a6b5c4d3e2f1a0b9c8d7e6'
+                    }
+                };
+
+                // Network configurations
+                this.networkConfigs = {
+                    sepolia: {
+                        chainId: '0xaa36a7', // 11155111
+                        chainName: 'Ethereum Sepolia',
+                        rpcUrls: ['https://sepolia.infura.io/v3/YOUR_INFURA_KEY'],
+                        blockExplorerUrls: ['https://sepolia.etherscan.io']
+                    },
+                    arbitrumSepolia: {
+                        chainId: '0x66eee', // 421614
+                        chainName: 'Arbitrum Sepolia',
+                        rpcUrls: ['https://sepolia-rollup.arbitrum.io/rpc'],
+                        blockExplorerUrls: ['https://sepolia.arbiscan.io']
+                    },
+                    baseSepolia: {
+                        chainId: '0x14a34', // 84532
+                        chainName: 'Base Sepolia',
+                        rpcUrls: ['https://sepolia.base.org'],
+                        blockExplorerUrls: ['https://sepolia.basescan.org']
+                    }
+                };
+            }
+
+            async initialize() {
+                try {
+                    // Wait for ethers to be available
+                    while (typeof ethers === 'undefined' || typeof ethers.Contract === 'undefined') {
+                        await new Promise(resolve => setTimeout(resolve, 100));
+                    }
+
+                    // Set up provider and signer
+                    if (typeof window.ethereum !== 'undefined') {
+                        this.provider = new ethers.providers.Web3Provider(window.ethereum);
+                        this.signer = this.provider.getSigner();
+                        
+                        // Get current account
+                        const accounts = await this.provider.listAccounts();
+                        if (accounts.length > 0) {
+                            this.account = accounts[0];
+                            this.isWalletConnected = true;
+                        }
+
+                        // Get current network
+                        const network = await this.provider.getNetwork();
+                        this.currentNetwork = this.getNetworkName(network.chainId);
+                    }
+
+                    // Initialize FHE client
+                    this.fheClient = {
+                        encrypt: (value) => {
+                            // Mock FHE encryption - in production, this would use real FHE
+                            const mockEncrypted = '0x' + value.toString(16).padStart(64, '0');
+                            return mockEncrypted;
+                        },
+                        decrypt: (encryptedValue) => {
+                            // Mock FHE decryption
+                            return parseInt(encryptedValue, 16);
+                        }
+                    };
+
+                    // Initialize contracts
+                    await this.initializeContracts();
+
+                    return {
+                        provider: !!this.provider,
+                        signer: !!this.signer,
+                        account: this.account,
+                        network: this.currentNetwork,
+                        contracts: Object.keys(this.contracts).length,
+                        fheClient: !!this.fheClient
+                    };
+                } catch (error) {
+                    console.error('QuantumDeFiClient initialization error:', error);
+                    throw error;
+                }
+            }
+
+            getNetworkName(chainId) {
+                const chainIdMap = {
+                    11155111: 'sepolia',
+                    421614: 'arbitrumSepolia',
+                    84532: 'baseSepolia'
+                };
+                return chainIdMap[chainId] || 'unknown';
+            }
+
+            async initializeContracts() {
+                if (!this.provider || !this.signer) {
+                    throw new Error('Provider and signer must be initialized first');
+                }
+
+                const networkAddresses = this.contractAddresses[this.currentNetwork];
+                if (!networkAddresses) {
+                    throw new Error(`No contract addresses found for network: ${this.currentNetwork}`);
+                }
+
+                // Initialize all contracts
+                for (const [contractName, address] of Object.entries(networkAddresses)) {
+                    try {
+                        const abi = this.abis[contractName];
+                        if (abi) {
+                            this.contracts[contractName] = new ethers.Contract(address, abi, this.signer);
+                            console.log(`✅ ${contractName} contract initialized at ${address}`);
+                        }
+                    } catch (error) {
+                        console.error(`❌ Failed to initialize ${contractName} contract:`, error);
+                    }
+                }
+            }
+        }
+
         // Tab switching functionality
         function showTab(tabName) {
             // Hide all tab contents
@@ -1092,7 +1276,7 @@
                         
                         <div class="space-y-4">
                             <div>
-                                <label class="block text-gray-300 text-sm mb-2">Withdrawal Amount</label>
+                                <label for="withdrawalAmount" class="block text-gray-300 text-sm mb-2">Withdrawal Amount</label>
                                 <input type="number" id="withdrawalAmount" placeholder="Enter amount to withdraw"
                                     class="w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white focus:border-purple-500 focus:outline-none">
                             </div>
@@ -1402,22 +1586,22 @@
         function selectAssetFromDropdown() {
             const assetSelect = document.getElementById('assetSelect');
             const selectedAsset = assetSelect.value;
-            
+
             if (!selectedAsset) {
                 selectedStakeAsset = null;
                 showNotification('⚠️ Please select an asset to stake', 'warning');
                 return;
             }
-            
+
             selectedStakeAsset = selectedAsset;
-            
+
             const assetNames = {
                 'ETH': 'ETH (Ethereum)',
-                'USDC': 'USDC (USD Coin)', 
+                'USDC': 'USDC (USD Coin)',
                 'WBTC': 'WBTC (Wrapped Bitcoin)',
                 'LINK': 'LINK (Chainlink)'
             };
-            
+
             showNotification(`✅ Selected ${assetNames[selectedAsset]} for staking`, 'success');
         }
 
@@ -1925,259 +2109,6 @@
             const now = new Date().toLocaleTimeString();
             document.title = `Quantum DeFi Protocol - Full App - ${now}`;
         }, 1000);
-    </script>
-
-    <!-- Contract Client Library -->
-    <script>
-        // Quantum DeFi Protocol - Contract Client Library
-        class QuantumDeFiClient {
-            constructor() {
-                this.provider = null;
-                this.signer = null;
-                this.contracts = {};
-                this.currentNetwork = null;
-                this.fheClient = null;
-                this.account = null;
-                this.isWalletConnected = false;
-
-                // Contract ABIs (simplified for demo)
-                this.abis = {
-                    MockFHE: [
-                        "function encrypt(uint256 value) external pure returns (bytes32)",
-                        "function decrypt(bytes32 encryptedValue) external pure returns (uint256)",
-                        "function add(bytes32 a, bytes32 b) external pure returns (bytes32)",
-                        "function multiply(bytes32 a, uint256 scalar) external pure returns (bytes32)"
-                    ],
-                    CrossChainBridge: [
-                        "function initiateSwap(uint256 targetChainId, address token, uint256 amount) external payable",
-                        "function completeSwap(bytes32 swapId, bytes32 secret) external",
-                        "function getSwapRequest(bytes32 swapId) external view returns (tuple(address initiator, uint256 targetChainId, address token, uint256 amount, uint256 timestamp, bool completed, bool expired))",
-                        "function createAssetPool(address token, uint256 initialLiquidity) external",
-                        "function getTokenLiquidityInfo(address token) external view returns (uint256 totalLiquidity, uint256 availableLiquidity)",
-                        "function getSupportedChains() external view returns (tuple(uint256 chainId, string name, address bridgeContract, bool isActive)[])"
-                    ],
-                    UniversalAssetManager: [
-                        "function registerAsset(address token, uint256 chainId, string memory symbol, uint8 decimals, uint256 totalSupply, bool isNative) external",
-                        "function getRegisteredAssets() external view returns (tuple(address token, uint256 chainId, string symbol, uint8 decimals, uint256 totalSupply, uint256 circulatingSupply, bool isActive, bool isNative)[])",
-                        "function getUserCrossChainBalance(address user, address token) external view returns (uint256 totalBalance, uint256 lockedBalance)",
-                        "function crossChainBridge() external view returns (address)",
-                        "function yieldOptimizer() external view returns (address)"
-                    ],
-                    ConfidentialYieldProtocol: [
-                        "function confidentialStake(bytes32 encryptedAmount) external",
-                        "function confidentialWithdraw(bytes32 encryptedAmount) external",
-                        "function setEncryptedAIParams(bytes32 riskTolerance, bytes32 timeHorizon, bytes32 liquidityPreference) external",
-                        "function getEncryptedBalance(address user) external view returns (bytes32)",
-                        "function getEncryptedMarketData() external view returns (bytes32 volatility, bytes32 trend, bytes32 optimalRate)",
-                        "function calculateEncryptedYield(address user) external returns (bytes32)",
-                        "function calculateEncryptedYieldRate(address user) external returns (bytes32)",
-                        "function getEncryptedTotalYield(address user) external view returns (bytes32)",
-                        "function getEncryptedAIParams(address user) external view returns (bytes32 riskTolerance, bytes32 timeHorizon, bytes32 liquidityPreference)",
-                        "function owner() external view returns (address)",
-                        "function fhe() external view returns (address)"
-                    ]
-                };
-
-                // Contract addresses for each network
-                this.contractAddresses = {
-                    sepolia: {
-                        MockFHE: "0x6Eb1aa06f43ABc12Fa0a838A0521068caA1dD916",
-                        CrossChainBridge: "0x308f3e0442C5406A4b1c73A65D8f012263468202",
-                        UniversalAssetManager: "0xA2Dcbc40B8F9191f608C3D9c55d5bb4AEdB7c090",
-                        ConfidentialYieldProtocol: "0x1C0e279979eBcCC6Eb20220BC7eb7Ac93497d993"
-                    },
-                    arbitrumSepolia: {
-                        MockFHE: "0xdBEE9399351a42e7F3dC6d988912988ec1ACC0cA",
-                        CrossChainBridge: "0x812C613477558337698eD2fb4e7ef91945402353",
-                        UniversalAssetManager: "0x4D1E48C190E2A066A646731F37245365011c0ec2",
-                        ConfidentialYieldProtocol: "0xeEa3FdB0256C92b67955b96a08E397A53FBA8c05"
-                    },
-                    baseSepolia: {
-                        MockFHE: "0x4D1E48C190E2A066A646731F37245365011c0ec2",
-                        CrossChainBridge: "0xeEa3FdB0256C92b67955b96a08E397A53FBA8c05",
-                        UniversalAssetManager: "0xE6322835dacb2a18CC318683090Df639199fCA94",
-                        ConfidentialYieldProtocol: "0x1c63Ad304B21b0923e0CCe869a747b6dc4a90D0a"
-                    }
-                };
-
-                // Network configurations with correct RPC URLs
-                this.networkConfigs = {
-                    sepolia: {
-                        chainId: 11155111,
-                        rpcUrl: "https://sepolia.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161",
-                        blockExplorer: "https://sepolia.etherscan.io",
-                        name: "Ethereum Sepolia"
-                    },
-                    arbitrumSepolia: {
-                        chainId: 421614,
-                        rpcUrl: "https://sepolia-rollup.arbitrum.io/rpc",
-                        blockExplorer: "https://sepolia.arbiscan.io",
-                        name: "Arbitrum Sepolia"
-                    },
-                    baseSepolia: {
-                        chainId: 84532,
-                        rpcUrl: "https://sepolia.base.org",
-                        blockExplorer: "https://sepolia.basescan.org",
-                        name: "Base Sepolia"
-                    }
-                };
-            }
-
-            // Initialize connection to MetaMask
-            async initialize() {
-                if (typeof window.ethereum === 'undefined') {
-                    throw new Error('MetaMask not detected. Please install MetaMask.');
-                }
-
-                // Check if ethers is available
-                if (typeof ethers === 'undefined') {
-                    throw new Error('Ethers library not loaded. Please refresh the page.');
-                }
-
-                this.provider = new ethers.providers.Web3Provider(window.ethereum);
-                this.signer = this.provider.getSigner();
-
-                // Get current network
-                const network = await this.provider.getNetwork();
-                this.currentNetwork = this.getNetworkName(network.chainId);
-
-                // Initialize contract instances
-                await this.initializeContracts();
-
-                return {
-                    address: await this.signer.getAddress(),
-                    network: this.currentNetwork,
-                    contracts: this.contractAddresses[this.currentNetwork] || {}
-                };
-            }
-
-            // Initialize contract instances
-            async initializeContracts() {
-                // Check if ethers is available
-                if (typeof ethers === 'undefined') {
-                    throw new Error('Ethers library not loaded. Please refresh the page.');
-                }
-
-                // Wait for ethers to be fully loaded
-                let attempts = 0;
-                while (typeof ethers.Contract === 'undefined' && attempts < 10) {
-                    console.log(`🔍 Waiting for ethers.Contract to load... attempt ${attempts + 1}`);
-                    await new Promise(resolve => setTimeout(resolve, 100));
-                    attempts++;
-                }
-
-                if (typeof ethers.Contract === 'undefined') {
-                    throw new Error('Ethers.Contract not available. Please refresh the page.');
-                }
-
-                const networkAddresses = this.contractAddresses[this.currentNetwork];
-
-                if (!networkAddresses) {
-                    throw new Error(`Network ${this.currentNetwork} not supported`);
-                }
-
-                // Initialize FHE Client (MockFHE contract)
-                if (networkAddresses.MockFHE) {
-                    this.fheClient = new ethers.Contract(
-                        networkAddresses.MockFHE,
-                        this.abis.MockFHE,
-                        this.signer
-                    );
-                    console.log('✅ FHE Client initialized with MockFHE contract');
-                }
-
-                for (const [contractName, address] of Object.entries(networkAddresses)) {
-                    if (address && address !== "0x0000000000000000000000000000000000000000" && this.abis[contractName]) {
-                        try {
-                            this.contracts[contractName] = new ethers.Contract(
-                                address,
-                                this.abis[contractName],
-                                this.signer
-                            );
-                            console.log(`✅ ${contractName} contract initialized at ${address}`);
-                        } catch (error) {
-                            console.error(`❌ Failed to initialize ${contractName}:`, error);
-                        }
-                    }
-                }
-            }
-
-            // Get network name from chain ID
-            getNetworkName(chainId) {
-                const networks = {
-                    11155111: 'sepolia',
-                    421614: 'arbitrumSepolia',
-                    84532: 'baseSepolia'
-                };
-                return networks[chainId] || 'unknown';
-            }
-
-            // Get current network info
-            async getNetworkInfo() {
-                const network = await this.provider.getNetwork();
-                return {
-                    chainId: network.chainId,
-                    name: this.getNetworkName(network.chainId),
-                    contracts: this.contractAddresses[this.getNetworkName(network.chainId)] || {}
-                };
-            }
-
-            // Test contract connectivity
-            async testContractIntegration() {
-                const results = {};
-
-                try {
-                    // Test ConfidentialYieldProtocol
-                    if (this.contracts.ConfidentialYieldProtocol) {
-                        const owner = await this.contracts.ConfidentialYieldProtocol.owner();
-                        const fheAddress = await this.contracts.ConfidentialYieldProtocol.fhe();
-                        results.ConfidentialYieldProtocol = {
-                            connected: true,
-                            owner: owner,
-                            fheAddress: fheAddress
-                        };
-                    }
-
-                    // Test MockFHE
-                    if (this.contracts.MockFHE) {
-                        const testEncryption = await this.contracts.MockFHE.encrypt(100);
-                        results.MockFHE = {
-                            connected: true,
-                            testEncryption: testEncryption
-                        };
-                    }
-
-                    // Test UniversalAssetManager
-                    if (this.contracts.UniversalAssetManager) {
-                        const bridgeAddress = await this.contracts.UniversalAssetManager.crossChainBridge();
-                        const yieldOptimizer = await this.contracts.UniversalAssetManager.yieldOptimizer();
-                        results.UniversalAssetManager = {
-                            connected: true,
-                            bridgeAddress: bridgeAddress,
-                            yieldOptimizer: yieldOptimizer
-                        };
-                    }
-
-                    // Test CrossChainBridge
-                    if (this.contracts.CrossChainBridge) {
-                        const supportedChains = await this.contracts.CrossChainBridge.getSupportedChains();
-                        results.CrossChainBridge = {
-                            connected: true,
-                            supportedChainsCount: supportedChains.length
-                        };
-                    }
-
-                } catch (error) {
-                    console.error('Contract integration test failed:', error);
-                    results.error = error.message;
-                }
-
-                return results;
-            }
-        }
-
-        // Global client instance
-        window.quantumApp = new QuantumDeFiClient();
     </script>
 </body>
 
