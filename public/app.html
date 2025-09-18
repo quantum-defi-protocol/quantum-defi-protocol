@@ -34,6 +34,20 @@
             backdrop-filter: blur(16px);
             background: rgba(0, 0, 0, 0.2);
         }
+        
+        /* Wallet button hover effects */
+        .connected-text {
+            display: inline;
+        }
+        .disconnect-text {
+            display: none;
+        }
+        .wallet-connected:hover .connected-text {
+            display: none;
+        }
+        .wallet-connected:hover .disconnect-text {
+            display: inline;
+        }
 
         .gradient-text {
             background: linear-gradient(90deg, #a855f7, #3b82f6);
@@ -1219,19 +1233,30 @@
 
         // Enable optimization buttons after staking
         function enableOptimizationButtons() {
+            console.log('🔓 Enabling optimization buttons...');
+            
             const optimizeButton = document.getElementById('optimizeButton');
             const reoptimizeButton = document.getElementById('reoptimizeButton');
+            
+            console.log('🔍 Found optimizeButton:', optimizeButton);
+            console.log('🔍 Found reoptimizeButton:', reoptimizeButton);
             
             if (optimizeButton) {
                 optimizeButton.disabled = false;
                 optimizeButton.textContent = '🤖 Optimize Yield';
                 optimizeButton.classList.remove('disabled:opacity-50', 'disabled:cursor-not-allowed');
+                console.log('✅ Optimize button enabled');
+            } else {
+                console.error('❌ Optimize button not found!');
             }
             
             if (reoptimizeButton) {
                 reoptimizeButton.disabled = false;
                 reoptimizeButton.textContent = '🎯 Re-optimize';
                 reoptimizeButton.classList.remove('disabled:opacity-50', 'disabled:cursor-not-allowed');
+                console.log('✅ Re-optimize button enabled');
+            } else {
+                console.error('❌ Re-optimize button not found!');
             }
             
             showNotification('🎯 Optimization features unlocked! You can now optimize your yield parameters.', 'info');
@@ -1241,13 +1266,13 @@
         function disableOptimizationButtons() {
             const optimizeButton = document.getElementById('optimizeButton');
             const reoptimizeButton = document.getElementById('reoptimizeButton');
-            
+
             if (optimizeButton) {
                 optimizeButton.disabled = true;
                 optimizeButton.textContent = '🤖 Optimize Yield (Stake First)';
                 optimizeButton.classList.add('disabled:opacity-50', 'disabled:cursor-not-allowed');
             }
-            
+
             if (reoptimizeButton) {
                 reoptimizeButton.disabled = true;
                 reoptimizeButton.textContent = '🎯 Re-optimize (Stake First)';
@@ -1712,8 +1737,8 @@
 
                         // Update UI
                         const walletButton = document.getElementById('walletButton');
-                        walletButton.innerHTML = `🔌 Disconnect (${currentAccount.slice(0, 6)}...${currentAccount.slice(-4)})`;
-                        walletButton.className = 'px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 rounded-lg font-semibold text-white transition-all duration-300';
+                        walletButton.innerHTML = `<span class="connected-text">🔌 Connected (${currentAccount.slice(0, 6)}...${currentAccount.slice(-4)})</span><span class="disconnect-text">🔌 Disconnect</span>`;
+                        walletButton.className = 'px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-red-600 hover:to-pink-600 rounded-lg font-semibold text-white transition-all duration-300 wallet-connected';
 
                         // Add network switching functionality
                         await switchToQuantumNetwork();
@@ -1927,8 +1952,8 @@
                         walletConnected = true;
 
                         const walletButton = document.getElementById('walletButton');
-                        walletButton.innerHTML = `🔌 Disconnect (${currentAccount.slice(0, 6)}...${currentAccount.slice(-4)})`;
-                        walletButton.className = 'px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 rounded-lg font-semibold text-white transition-all duration-300';
+                        walletButton.innerHTML = `<span class="connected-text">🔌 Connected (${currentAccount.slice(0, 6)}...${currentAccount.slice(-4)})</span><span class="disconnect-text">🔌 Disconnect</span>`;
+                        walletButton.className = 'px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-red-600 hover:to-pink-600 rounded-lg font-semibold text-white transition-all duration-300 wallet-connected';
 
                         // Initialize quantumApp if not already done
                         if (!window.quantumApp) {
@@ -2014,7 +2039,8 @@
                     // Account changed
                     currentAccount = accounts[0];
                     const walletButton = document.getElementById('walletButton');
-                    walletButton.innerHTML = `🔌 Disconnect (${currentAccount.slice(0, 6)}...${currentAccount.slice(-4)})`;
+                    walletButton.innerHTML = `<span class="connected-text">🔌 Connected (${currentAccount.slice(0, 6)}...${currentAccount.slice(-4)})</span><span class="disconnect-text">🔌 Disconnect</span>`;
+                    walletButton.className = 'px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-red-600 hover:to-pink-600 rounded-lg font-semibold text-white transition-all duration-300 wallet-connected';
                 }
             });
         }
