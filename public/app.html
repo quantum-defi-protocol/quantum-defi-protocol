@@ -34,17 +34,20 @@
             backdrop-filter: blur(16px);
             background: rgba(0, 0, 0, 0.2);
         }
-        
+
         /* Wallet button hover effects */
         .connected-text {
             display: inline;
         }
+
         .disconnect-text {
             display: none;
         }
+
         .wallet-connected:hover .connected-text {
             display: none;
         }
+
         .wallet-connected:hover .disconnect-text {
             display: inline;
         }
@@ -380,36 +383,12 @@
                                 <input type="number" id="stakeAmount" placeholder="Enter amount to stake"
                                     class="w-full px-4 py-3 bg-gray-800/50 border border-gray-600 rounded-lg text-white focus:border-purple-500 focus:outline-none">
 
-                                <!-- AI Optimization Section -->
-                                <div id="aiOptimizationSection"
-                                    class="hidden space-y-4 p-4 bg-gray-800/30 rounded-lg border border-purple-500/30">
-                                    <h5 class="text-md font-semibold text-white">🤖 AI Yield Optimization</h5>
-                                    <div class="space-y-3">
-                                        <div>
-                                            <label class="text-gray-300 text-sm">Risk Tolerance: <span id="riskValue"
-                                                    class="text-white">50%</span></label>
-                                            <input type="range" id="riskTolerance" min="0" max="100" value="50"
-                                                class="w-full">
-                                        </div>
-                                        <div>
-                                            <label class="text-gray-300 text-sm">Time Horizon: <span id="timeValue"
-                                                    class="text-white">30 days</span></label>
-                                            <input type="range" id="timeHorizon" min="1" max="365" value="30"
-                                                class="w-full">
-                                        </div>
-                                        <div>
-                                            <label class="text-gray-300 text-sm">Liquidity Preference: <span
-                                                    id="liquidityValue" class="text-white">70%</span></label>
-                                            <input type="range" id="liquidityPreference" min="0" max="100" value="70"
-                                                class="w-full">
-                                        </div>
-                                        <button onclick="optimizeYieldForStaking()" id="optimizeButton"
-                                            class="w-full px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 rounded-lg font-semibold text-white transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
-                                            disabled>
-                                            🤖 Optimize Yield (Stake First)
-                                        </button>
-                                    </div>
-                                </div>
+                                <!-- Optimize Yield Button -->
+                                <button onclick="openOptimizeYieldModal()" id="optimizeButton"
+                                    class="w-full px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 rounded-lg font-semibold text-white transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    disabled>
+                                    🤖 Optimize Yield (Stake First)
+                                </button>
 
                                 <button onclick="confidentialStake()" id="stakeButton"
                                     class="w-full px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 rounded-lg font-semibold text-white transition-all duration-300">
@@ -1234,13 +1213,13 @@
         // Enable optimization buttons after staking
         function enableOptimizationButtons() {
             console.log('🔓 Enabling optimization buttons...');
-            
+
             const optimizeButton = document.getElementById('optimizeButton');
             const reoptimizeButton = document.getElementById('reoptimizeButton');
-            
+
             console.log('🔍 Found optimizeButton:', optimizeButton);
             console.log('🔍 Found reoptimizeButton:', reoptimizeButton);
-            
+
             if (optimizeButton) {
                 optimizeButton.disabled = false;
                 optimizeButton.textContent = '🤖 Optimize Yield';
@@ -1249,7 +1228,7 @@
             } else {
                 console.error('❌ Optimize button not found!');
             }
-            
+
             if (reoptimizeButton) {
                 reoptimizeButton.disabled = false;
                 reoptimizeButton.textContent = '🎯 Re-optimize';
@@ -1258,7 +1237,7 @@
             } else {
                 console.error('❌ Re-optimize button not found!');
             }
-            
+
             showNotification('🎯 Optimization features unlocked! You can now optimize your yield parameters.', 'info');
         }
 
@@ -1543,6 +1522,18 @@
             document.getElementById('modalLiquidityPreference').addEventListener('input', updateModalSliderValues);
         }
 
+        function openOptimizeYieldModal() {
+            // Check if user has staked first
+            const optimizeButton = document.getElementById('optimizeButton');
+            if (optimizeButton && optimizeButton.disabled) {
+                showNotification('⚠️ Please stake funds first before optimizing yield parameters', 'warning');
+                return;
+            }
+
+            // Open the AI optimization modal
+            openAIOptimizationModal();
+        }
+
         function closeAIOptimizationModal() {
             document.getElementById('aiOptimizationModal').classList.add('hidden');
         }
@@ -1635,72 +1626,6 @@
         }
 
         // Reusable AI Optimization Component
-        async function optimizeYieldForStaking() {
-            // Check wallet connection first
-            if (!window.quantumApp || !window.quantumApp.isWalletConnected) {
-                showNotification('⚠️ Please connect your wallet first before optimizing yield.', 'warning');
-                return;
-            }
-
-            // Check if contracts are loaded
-            if (!window.quantumApp.contracts || !window.quantumApp.contracts.ConfidentialYieldProtocol) {
-                showNotification('⚠️ Please wait for the ConfidentialYieldProtocol contract to load before optimizing yield.', 'warning');
-                return;
-            }
-
-            if (!selectedStakeAsset) {
-                showNotification('⚠️ Please select an asset first', 'warning');
-                return;
-            }
-
-            const risk = document.getElementById('riskTolerance').value;
-            const time = document.getElementById('timeHorizon').value;
-            const liquidity = document.getElementById('liquidityPreference').value;
-
-            try {
-                showNotification(`🔒 Optimizing ${selectedStakeAsset} yield...`, 'info');
-
-                // Encrypt the parameters using FHE
-                const encryptedRisk = window.quantumApp.fheClient.encrypt(parseInt(risk));
-                const encryptedTime = window.quantumApp.fheClient.encrypt(parseInt(time));
-                const encryptedLiquidity = window.quantumApp.fheClient.encrypt(parseInt(liquidity));
-
-                // First, set the encrypted AI parameters
-                const tx1 = await window.quantumApp.contracts.ConfidentialYieldProtocol.setEncryptedAIParams(
-                    encryptedRisk,
-                    encryptedTime,
-                    encryptedLiquidity
-                );
-
-                showNotification(`📡 AI Parameters Submitted! Transaction: ${createEtherscanLink(tx1.hash, window.quantumApp.currentNetwork)}`, 'info');
-                await tx1.wait();
-
-                // Then calculate the encrypted yield rate
-                const tx = await window.quantumApp.contracts.ConfidentialYieldProtocol.calculateEncryptedYieldRate(window.quantumApp.account);
-
-                showNotification(`📡 Transaction Submitted! Hash: ${createEtherscanLink(tx.hash, window.quantumApp.currentNetwork)}`, 'info');
-
-                // Wait for transaction confirmation
-                const receipt = await tx.wait();
-
-                // Calculate optimized APY based on parameters (for display)
-                const baseApy = 5;
-                const riskMultiplier = risk / 10;
-                const timeMultiplier = (365 / time) * 0.5;
-                const liquidityMultiplier = (liquidity / 100) * 2;
-                const optimizedApy = baseApy + riskMultiplier + timeMultiplier + liquidityMultiplier;
-
-                // Update the yield projections with optimized values
-                updateYieldProjections(optimizedApy);
-
-                // Show success with transaction details
-                showNotification(`🎉 ${selectedStakeAsset} Yield Optimized! APY: ${optimizedApy.toFixed(2)}%. Ready to stake!`, 'success');
-
-            } catch (error) {
-                console.error('Yield optimization error:', error);
-                showNotification(`❌ Transaction Failed: ${error.message}`, 'error');
-            }
-        }
 
         // Cross-chain swap functions
         function generateSwapSecret() {
