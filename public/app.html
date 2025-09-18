@@ -1384,11 +1384,6 @@
         }
 
         async function reoptimizeYield() {
-            console.log('🔍 Debug: reoptimizeYield called');
-            console.log('🔍 Debug: window.quantumApp:', window.quantumApp);
-            console.log('🔍 Debug: contracts:', window.quantumApp?.contracts);
-            console.log('🔍 Debug: ConfidentialYieldProtocol:', window.quantumApp?.contracts?.ConfidentialYieldProtocol);
-
             if (!window.quantumApp || !window.quantumApp.isWalletConnected) {
                 showNotification('⚠️ Please connect your wallet first', 'warning');
                 return;
@@ -1476,11 +1471,6 @@
         }
 
         async function executeAIOptimization() {
-            console.log('🔍 Debug: executeAIOptimization called');
-            console.log('🔍 Debug: window.quantumApp:', window.quantumApp);
-            console.log('🔍 Debug: contracts:', window.quantumApp?.contracts);
-            console.log('🔍 Debug: ConfidentialYieldProtocol:', window.quantumApp?.contracts?.ConfidentialYieldProtocol);
-
             if (!window.quantumApp || !window.quantumApp.isWalletConnected) {
                 showNotification('⚠️ Please connect your wallet first', 'warning');
                 return;
@@ -1679,7 +1669,7 @@
                                 }
                                 window.quantumApp = new QuantumDeFiClient();
                             }
-                            
+
                             const clientInfo = await window.quantumApp.initialize();
                             console.log('Quantum DeFi Client initialized:', clientInfo);
 
@@ -1879,15 +1869,15 @@
                             }
                             window.quantumApp = new QuantumDeFiClient();
                         }
-                        
+
                         try {
                             const clientInfo = await window.quantumApp.initialize();
                             console.log('Quantum DeFi Client initialized on page load:', clientInfo);
-                            
+
                             // Update quantumApp properties
                             window.quantumApp.account = currentAccount;
                             window.quantumApp.isWalletConnected = true;
-                            
+
                             enableBlockchainFeatures();
                         } catch (error) {
                             console.error('Error initializing Quantum DeFi client on page load:', error);
@@ -2133,7 +2123,6 @@
                 }
 
                 for (const [contractName, address] of Object.entries(networkAddresses)) {
-                    console.log(`🔍 Debug: Processing contract ${contractName} with address ${address}`);
                     if (address && address !== "0x0000000000000000000000000000000000000000" && this.abis[contractName]) {
                         try {
                             this.contracts[contractName] = new ethers.Contract(
@@ -2142,28 +2131,9 @@
                                 this.signer
                             );
                             console.log(`✅ ${contractName} contract initialized at ${address}`);
-                            console.log(`🔍 Debug: ${contractName} ABI:`, this.abis[contractName]);
-
-                            // Test if the contract has the expected functions
-                            if (contractName === 'ConfidentialYieldProtocol') {
-                                console.log(`🔍 Debug: Testing ConfidentialYieldProtocol functions...`);
-                                console.log(`🔍 Debug: setEncryptedAIParams exists:`, typeof this.contracts[contractName].setEncryptedAIParams);
-                                console.log(`🔍 Debug: calculateEncryptedYieldRate exists:`, typeof this.contracts[contractName].calculateEncryptedYieldRate);
-                                console.log(`🔍 Debug: confidentialStake exists:`, typeof this.contracts[contractName].confidentialStake);
-
-                                // Test calling a view function to ensure contract is accessible
-                                try {
-                                    const owner = await this.contracts[contractName].owner();
-                                    console.log(`🔍 Debug: Contract owner: ${owner}`);
-                                } catch (error) {
-                                    console.error(`🔍 Debug: Error calling owner():`, error);
-                                }
-                            }
                         } catch (error) {
                             console.error(`❌ Failed to initialize ${contractName}:`, error);
                         }
-                    } else {
-                        console.warn(`⚠️ Skipping ${contractName}: address=${address}, hasABI=${!!this.abis[contractName]}`);
                     }
                 }
             }
