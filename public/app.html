@@ -1523,13 +1523,20 @@
         }
 
         function openOptimizeYieldModal() {
+            console.log('🎯 openOptimizeYieldModal() called');
+            
             // Check if user has staked first
             const optimizeButton = document.getElementById('optimizeButton');
+            console.log('🔍 optimizeButton found:', optimizeButton);
+            console.log('🔍 optimizeButton disabled:', optimizeButton?.disabled);
+            
             if (optimizeButton && optimizeButton.disabled) {
+                console.log('⚠️ Button is disabled, showing warning');
                 showNotification('⚠️ Please stake funds first before optimizing yield parameters', 'warning');
                 return;
             }
 
+            console.log('✅ Opening AI optimization modal');
             // Open the AI optimization modal
             openAIOptimizationModal();
         }
